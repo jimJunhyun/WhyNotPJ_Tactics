@@ -26,23 +26,25 @@ public class StatusManager : MonoBehaviour
 
 	}
 
-	public void OnDizzyActivate(UnitMover effector, MoverChecker inflicter)
+	public void OnDizzyActivate(UnitMover effector, MoverChecker inflicter, int amt)
 	{
 		effector.Immobilize();
 	}
 
-	public void OnDizzyDisactivate(UnitMover effector, MoverChecker inflicter)
+	public void OnDizzyDisactivate(UnitMover effector, MoverChecker inflicter, int amt)
 	{
 		effector.Mobilize();
 	}
 
-	public void OnEmpowerActivate(UnitMover effector, MoverChecker inflicter)
+	public void OnEmpowerActivate(UnitMover effector, MoverChecker inflicter, int amt)
 	{
-		effector.atkModifier = effector.curStatus.Find(x => x.info.Id == instance.allAnomalies.allAnomalies[((int)AnomalyIndex.Empower)].Id).stacks;
+		int r = effector.curStatus.Find(x => x.info.Id == (int)AnomalyIndex.Empower + 1).stacks;
+		effector.atkModifier = r;
 	}
 
-	public void OnEmpowerDisactivate(UnitMover effector, MoverChecker inflicter)
+	public void OnEmpowerDisactivate(UnitMover effector, MoverChecker inflicter, int amt)
 	{
-		effector.RemoveAtkScope(effector.curStatus.Find(x => x.info.Id == instance.allAnomalies.allAnomalies[((int)AnomalyIndex.Empower)].Id).stacks);
+		//int r = effector.curStatus.Find(x => x.info.Id == (int)AnomalyIndex.Empower + 1).stacks;
+		effector.RemoveAtkScope(amt);
 	}
 }

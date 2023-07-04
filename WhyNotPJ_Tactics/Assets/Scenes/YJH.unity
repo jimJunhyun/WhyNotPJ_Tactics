@@ -225,7 +225,7 @@ MonoBehaviour:
   moveGap: 0.6
   moveDist: 1
   rayDist: 0.5
-  hp: 5
+  hp: 3
   controlable: 1
   attackedBy: []
 --- !u!61 &473673713

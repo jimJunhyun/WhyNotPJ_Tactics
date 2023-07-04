@@ -13,14 +13,14 @@ public class UnitMover : MonoBehaviour
 	public float rayDist = 0.5f;
 
 	public int hp;
-	public RefableInt hpModifier
+	public int hpModifier
 	{
 		get
 		{
-			RefableInt sum = new RefableInt(0);
+			int sum = 0;
 			for (int i = 0; i < hpScopes.Count; i++)
 			{
-				sum += hpScopes[i].val;
+				sum += hpScopes[i];
 			}
 			return sum;
 		}
@@ -29,12 +29,12 @@ public class UnitMover : MonoBehaviour
 			hpScopes.Add(value);
 		}
 	}
-	public RefableInt atkModifier 
+	public int atkModifier 
 	{
 		get
 		{
-			RefableInt sum = new RefableInt(0);
-			for (int i = 0; i < hpScopes.Count; i++)
+			int sum = 0;
+			for (int i = 0; i < atkScopes.Count; i++)
 			{
 				sum += atkScopes[i];
 			}
@@ -52,9 +52,10 @@ public class UnitMover : MonoBehaviour
 			int sum = 0;
 			for (int i = 0; i < attackedBy.Count; i++)
 			{
-				sum += attackedBy[i].atk;
+				sum += attackedBy[i].totalAtk;
+				//Debug.Log($"{attackedBy[i].atk} + {attackedBy[i].atkModifier} = {attackedBy[i].totalAtk}");
 			}
-			return hp + hpModifier.val - sum;
+			return hp + hpModifier - sum;
 		}
 	}
 
@@ -63,11 +64,8 @@ public class UnitMover : MonoBehaviour
 	public List<AttackRange> attackedBy;
 
 	public List<InflictedAnomaly> curStatus = new List<InflictedAnomaly>();
-	List<RefableInt> hpScopes = new List<RefableInt>();
-	List<RefableInt> atkScopes = new List<RefableInt>();
-	
-
-	MoverChecker mover;
+	List<int> hpScopes = new List<int>();
+	List<int> atkScopes = new List<int>();
 
 	bool movable = true;
 	float prevMove;
@@ -75,7 +73,6 @@ public class UnitMover : MonoBehaviour
 	private void Awake()
 	{
 		prevMove = 0;
-		mover = GetComponent<MoverChecker>();
 	}
 
 	private void Update()
@@ -93,8 +90,9 @@ public class UnitMover : MonoBehaviour
 				{
 					if (!Physics2D.Raycast(transform.position + Vector3.right * (transform.localScale.x / 1.8f), Vector3.right, rayDist))
 					{
-						transform.eulerAngles = new Vector3(0, 0, 0);
-						transform.Translate(new Vector3(moveDist, 0), Space.Self);
+						transform.eulerAngles = new Vector3(0, 0, 270);
+						
+						transform.Translate(new Vector3(0, moveDist), Space.Self);
 						movable = false;
 						prevMove = Time.time;
 					}
@@ -104,8 +102,9 @@ public class UnitMover : MonoBehaviour
 				{
 					if (!(hit = Physics2D.Raycast(transform.position - Vector3.right * (transform.localScale.x / 1.8f), Vector3.left, rayDist)))
 					{
-						transform.eulerAngles = new Vector3(0, 0, 180);
-						transform.Translate(new Vector3(moveDist, 0), Space.Self);
+						transform.eulerAngles = new Vector3(0, 0, 90);
+						
+						transform.Translate(new Vector3(0, moveDist), Space.Self);
 						movable = false;
 						prevMove = Time.time;
 					}
@@ -114,8 +113,8 @@ public class UnitMover : MonoBehaviour
 				{
 					if (!Physics2D.Raycast(transform.position + Vector3.up * (transform.localScale.y / 1.8f), Vector3.up, rayDist))
 					{
-						transform.eulerAngles = new Vector3(0, 0, 90);
-						transform.Translate(new Vector3(moveDist, 0), Space.Self);
+						transform.eulerAngles = new Vector3(0, 0, 0);
+						transform.Translate(new Vector3(0, moveDist), Space.Self);
 						movable = false;
 						prevMove = Time.time;
 					}
@@ -124,18 +123,14 @@ public class UnitMover : MonoBehaviour
 				{
 					if (!Physics2D.Raycast(transform.position - Vector3.up * (transform.localScale.y / 1.8f), Vector3.down, rayDist))
 					{
-						transform.eulerAngles = new Vector3(0, 0, 270);
-						transform.Translate(new Vector3(moveDist, 0), Space.Self);
+						transform.eulerAngles = new Vector3(0, 0, 180);
+						transform.Translate(new Vector3(0, moveDist), Space.Self);
 						movable = false;
 						prevMove = Time.time;
 					}
 				}
-
 			}
 		}
-		
-		
-		
 	}
 
 	private void LateUpdate()
@@ -156,12 +151,12 @@ public class UnitMover : MonoBehaviour
 		movable = true;
 	}
 
-	public void RemoveHpScope(RefableInt val)
+	public void RemoveHpScope(int val)
 	{
 		hpScopes.Remove(val);
 	}
 
-	public void RemoveAtkScope(RefableInt val)
+	public void RemoveAtkScope(int val)
 	{
 		atkScopes.Remove(val);
 	}
@@ -175,11 +170,12 @@ public class UnitMover : MonoBehaviour
 			InflictedAnomaly found = curStatus.Find(item => item.info.Id == (((int)anomaly) + 1));
 			if(found != null && found.stacks < StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].maxActivate)
 			{
+				Debug.Log(found.stacks);
 				bool prevActivate = found.stacks >= StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate;
 				found.stacks += amt;
 				if(!prevActivate && found.stacks >= StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate)
 				{
-					found.info.onActivated?.Invoke(this, inflicter);
+					found.info.onActivated?.Invoke(this, inflicter, amt);
 				}
 			}
 		}
@@ -189,7 +185,7 @@ public class UnitMover : MonoBehaviour
 			curStatus.Add(ano);
 			if(amt >= StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate)
 			{
-				ano.info.onActivated?.Invoke(this, inflicter);
+				ano.info.onActivated?.Invoke(this, inflicter, amt);
 			}
 		}
 	}
@@ -206,7 +202,7 @@ public class UnitMover : MonoBehaviour
 				found.stacks -= amt;
 				if (prevActivate && found.stacks < StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate)
 				{
-					found.info.onDisactivated?.Invoke(this, inflicter);
+					found.info.onDisactivated?.Invoke(this, inflicter, amt);
 				}
 				if (found.stacks <= 0)
 				{

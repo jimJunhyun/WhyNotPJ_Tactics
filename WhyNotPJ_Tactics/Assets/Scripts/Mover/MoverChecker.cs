@@ -21,9 +21,11 @@ public class MoverChecker : MonoBehaviour
     public List<AttackRange> ranges;
 	Dictionary<AttackRange, UnitMover> rangeAttackingPair = new Dictionary<AttackRange, UnitMover>();
 
+	UnitMover myBase;
+
 	private void Awake()
 	{
-		
+		myBase = GetComponent<UnitMover>();
 	}
 
 	private void Update()
@@ -49,12 +51,15 @@ public class MoverChecker : MonoBehaviour
 					if (ranges[i].anomaly != AnomalyIndex.None)
 					{
 						rangeAttackingPair[ranges[i]].DisflictDistort(this, ranges[i].anomaly, ranges[i].anomalyAmount);
+						
 					}
 					rangeAttackingPair[ranges[i]].attackedBy.Remove(ranges[i]);
 					rangeAttackingPair.Remove(ranges[i]);
 				}
 			}
+			ranges[i].atkModifier = myBase.atkModifier;
 		}
+		//Debug.Log(myBase.name + " : " + myBase.atkModifier.val);
 	}
 
 	bool CheckCell(AttackRange rng, out UnitMover mover)
@@ -72,6 +77,26 @@ public class MoverChecker : MonoBehaviour
 		return false;
 	}
 
+	private void OnDestroy()
+	{
+		for (int i = 0; i < ranges.Count; i++)
+		{
+			if (CheckCell(ranges[i], out UnitMover foundUnit))
+			{
+				if (rangeAttackingPair.ContainsKey(ranges[i]))
+				{
+					if (ranges[i].anomaly != AnomalyIndex.None)
+					{
+						rangeAttackingPair[ranges[i]].DisflictDistort(this, ranges[i].anomaly, ranges[i].anomalyAmount);
+					}
+					rangeAttackingPair[ranges[i]].attackedBy.Remove(ranges[i]);
+					rangeAttackingPair.Remove(ranges[i]);
+				}
+			}
+			ranges[i].atkModifier = myBase.atkModifier;
+		}
+	}
+
 	public void OnDrawGizmos()
 	{
 		for (int i = 0; i < ranges.Count; i++)
@@ -80,4 +105,5 @@ public class MoverChecker : MonoBehaviour
 			Gizmos.DrawWireCube(dest, Vector3.one * 0.9f);
 		}
 	}
+
 }
