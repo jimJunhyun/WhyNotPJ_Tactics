@@ -20,7 +20,8 @@ public class StatusManager : MonoBehaviour
 		allAnomalies.allAnomalies[1].onActivated += OnEmpowerActivate;
 		allAnomalies.allAnomalies[1].onDisactivated += OnEmpowerDisactivate;
 
-
+		allAnomalies.allAnomalies[2].onActivated += OnVitalActivate;
+		allAnomalies.allAnomalies[2].onDisactivated += OnVitalDisactivate;
 		//reflection을 사용하기보다 그냥 손수 하나하나 더하기로 결정.
 		//실행속도를 높이기 위함.
 
@@ -46,5 +47,17 @@ public class StatusManager : MonoBehaviour
 	{
 		//int r = effector.curStatus.Find(x => x.info.Id == (int)AnomalyIndex.Empower + 1).stacks;
 		effector.RemoveAtkScope(amt);
+	}
+
+	public void OnVitalActivate(UnitMover effector, MoverChecker inflicter, int amt)
+	{
+		int r = effector.curStatus.Find(x => x.info.Id == (int)AnomalyIndex.Vital + 1).stacks;
+		effector.hpModifier = r;
+	}
+
+	public void OnVitalDisactivate(UnitMover effector, MoverChecker inflicter, int amt)
+	{
+		//int r = effector.curStatus.Find(x => x.info.Id == (int)AnomalyIndex.Empower + 1).stacks;
+		effector.RemoveHpScope(amt);
 	}
 }

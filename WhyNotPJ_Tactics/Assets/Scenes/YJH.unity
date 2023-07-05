@@ -271,7 +271,7 @@ MonoBehaviour:
     yDistance: 1
     atk: 3
     atkModifier: 0
-    anomaly: 1
+    anomaly: 2
     anomalyAmount: 2
 --- !u!1 &1284204937
 GameObject:
@@ -449,7 +449,7 @@ MonoBehaviour:
   moveGap: 1.5
   moveDist: 1
   rayDist: 0.5
-  hp: 4
+  hp: 2
   controlable: 0
   attackedBy: []
 --- !u!212 &1343471186
