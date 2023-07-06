@@ -11,9 +11,11 @@ public enum AnomalyIndex
     Empower,
     Vital,
     Revive,
-    Charge,
+    Protect,
     Plague,
     SoulLink,
+
+    Max
 }
 
 public class InflictedAnomaly
@@ -111,6 +113,7 @@ public class Anomaly
 
     //효과를 받은 사람 , 효과를 부여한 사람, 발동을 트리거한 양
     public UnityAction<UnitMover, MoverChecker, int> onActivated;
+    public UnityAction<UnitMover, MoverChecker, int> onUpdated;
     public UnityAction<UnitMover, MoverChecker, int> onDisactivated;
 }
 

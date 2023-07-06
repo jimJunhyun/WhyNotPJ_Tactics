@@ -13,37 +13,18 @@ public class UnitMover : MonoBehaviour
 	public float rayDist = 0.5f;
 
 	public int hp;
+	public int prot;
 	public int hpModifier
 	{
-		get
-		{
-			int sum = 0;
-			for (int i = 0; i < hpScopes.Count; i++)
-			{
-				sum += hpScopes[i];
-			}
-			return sum;
-		}
-		set
-		{
-			hpScopes.Add(value);
-		}
+		get; set;
 	}
 	public int atkModifier 
 	{
-		get
-		{
-			int sum = 0;
-			for (int i = 0; i < atkScopes.Count; i++)
-			{
-				sum += atkScopes[i];
-			}
-			return sum;
-		}
-		set
-		{
-			atkScopes.Add(value);
-		}
+		get; set;
+	}
+	public int defModifier
+	{
+		get; set;
 	}
 	public int CurHp
 	{
@@ -52,11 +33,17 @@ public class UnitMover : MonoBehaviour
 			int sum = 0;
 			for (int i = 0; i < attackedBy.Count; i++)
 			{
-				sum += attackedBy[i].totalAtk;
+				sum += Mathf.Max(attackedBy[i].totalAtk - prot, 0);
 				//Debug.Log($"{attackedBy[i].atk} + {attackedBy[i].atkModifier} = {attackedBy[i].totalAtk}");
 			}
 			return hp + hpModifier - sum;
 		}
+	}
+	bool pSide = true;
+	public bool PSide
+	{
+		get=>pSide;
+		set=>pSide = value;
 	}
 
 	public bool controlable = false;
@@ -64,10 +51,11 @@ public class UnitMover : MonoBehaviour
 	public List<AttackRange> attackedBy;
 
 	public List<InflictedAnomaly> curStatus = new List<InflictedAnomaly>();
-	List<int> hpScopes = new List<int>();
-	List<int> atkScopes = new List<int>();
 
+
+	bool immunity = false;
 	bool movable = true;
+	
 	float prevMove;
 
 	private void Awake()
@@ -133,14 +121,6 @@ public class UnitMover : MonoBehaviour
 		}
 	}
 
-	private void LateUpdate()
-	{
-		if (CurHp <= 0)
-		{
-			Destroy(gameObject);
-		}
-	}
-
 	public void Immobilize()
 	{
 		movable = false;
@@ -151,14 +131,24 @@ public class UnitMover : MonoBehaviour
 		movable = true;
 	}
 
-	public void RemoveHpScope(int val)
+	public void OnDead()
 	{
-		hpScopes.Remove(val);
-	}
-
-	public void RemoveAtkScope(int val)
-	{
-		atkScopes.Remove(val);
+		if (!immunity)
+		{
+			InflictedAnomaly inf = curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Revive) + 1);
+			if (inf != null && inf.stacks > 0)
+			{
+				attackedBy.Clear(); //?
+				DisflictDistort(GetComponent<MoverChecker>(), AnomalyIndex.Revive);
+				//UnityEditor.EditorApplication.isPaused = true;
+				transform.position += Vector3.one - Vector3.forward; // TEST
+				StartCoroutine(ImmunitySecond(1f));
+			}
+			else
+			{
+				Destroy(gameObject);
+			}
+		}
 	}
 
 	public void InflictDistort(MoverChecker inflicter, AnomalyIndex anomaly, int amt = 1)
@@ -168,15 +158,16 @@ public class UnitMover : MonoBehaviour
 		if(curStatus.Exists(item => item.info.Id == (((int)anomaly) + 1)))
 		{
 			InflictedAnomaly found = curStatus.Find(item => item.info.Id == (((int)anomaly) + 1));
-			if(found != null && found.stacks < StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].maxActivate)
+			if(found != null)
 			{
-				Debug.Log(found.stacks);
 				bool prevActivate = found.stacks >= StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate;
 				found.stacks += amt;
+				found.stacks = Mathf.Clamp(found.stacks, 1, StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].maxActivate);
 				if(!prevActivate && found.stacks >= StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate)
 				{
 					found.info.onActivated?.Invoke(this, inflicter, amt);
 				}
+				found.info.onUpdated?.Invoke(this, inflicter, amt);
 			}
 		}
 		else
@@ -187,12 +178,14 @@ public class UnitMover : MonoBehaviour
 			{
 				ano.info.onActivated?.Invoke(this, inflicter, amt);
 			}
+			ano.stacks = Mathf.Clamp(ano.stacks, 1, StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].maxActivate);
+			ano.info.onUpdated?.Invoke(this, inflicter, amt);
 		}
 	}
-	public void DisflictDistort(MoverChecker inflicter, AnomalyIndex anomaly, int amt = 1)
+	public bool DisflictDistort(MoverChecker inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if(amt <= 0)
-			return;
+			return false;
 		if (curStatus.Exists(item => item.info.Id == (((int)anomaly) + 1)))
 		{
 			InflictedAnomaly found = curStatus.Find(item => item.info.Id == (((int)anomaly) + 1));
@@ -200,6 +193,7 @@ public class UnitMover : MonoBehaviour
 			{
 				bool prevActivate = found.stacks >= StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate;
 				found.stacks -= amt;
+				found.info.onUpdated?.Invoke(this, inflicter, -amt);
 				if (prevActivate && found.stacks < StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate)
 				{
 					found.info.onDisactivated?.Invoke(this, inflicter, amt);
@@ -207,8 +201,17 @@ public class UnitMover : MonoBehaviour
 				if (found.stacks <= 0)
 				{
 					curStatus.Remove(found);
+					return true;
 				}
 			}
 		}
+		return false;
+	}
+
+	IEnumerator ImmunitySecond(float sec)
+	{
+		immunity = true;
+		yield return new WaitForSeconds(sec);
+		immunity = false;
 	}
 }

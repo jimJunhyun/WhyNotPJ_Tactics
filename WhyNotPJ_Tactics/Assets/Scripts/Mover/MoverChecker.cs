@@ -11,9 +11,15 @@ public class AttackRange
     public int yDistance;
     public int atk;
 	public int atkModifier;
-	public int totalAtk { get => atk + atkModifier;}
-	public AnomalyIndex anomaly;
-	public int anomalyAmount;
+
+	[HideInInspector]
+	public int totalMod;
+
+	public int totalAtk { get => atk + totalMod;}
+	public List<AnomalyIndex> anomaly;
+	public List<int> anomalyAmount;
+	public bool indiscriminate;
+	public bool discriminating;
 }
 
 public class MoverChecker : MonoBehaviour
@@ -27,7 +33,9 @@ public class MoverChecker : MonoBehaviour
 	{
 		myBase = GetComponent<UnitMover>();
 	}
-
+	//부활 이후의 위치 변경이 적용되기 전에 타격이 들어가서 죽어버림.
+	//그래서 무적 시간을 적용함.
+	//부활 연출 등에도 사용할 수 있을 듯.
 	private void Update()
 	{
 		for (int i = 0; i < ranges.Count; i++)
@@ -37,10 +45,24 @@ public class MoverChecker : MonoBehaviour
 				if (!rangeAttackingPair.ContainsKey(ranges[i]))
 				{
 					foundUnit.attackedBy.Add(ranges[i]);
-					rangeAttackingPair.Add(ranges[i], foundUnit);
-					if(ranges[i].anomaly != AnomalyIndex.None)
+					if(foundUnit.CurHp <= 0)
 					{
-						foundUnit.InflictDistort(this, ranges[i].anomaly, ranges[i].anomalyAmount);
+						foundUnit.attackedBy.Remove(ranges[i]);
+						foundUnit.OnDead();
+					}
+					else
+					{
+						rangeAttackingPair.Add(ranges[i], foundUnit);
+					}
+					if(ranges[i].anomaly.Count > 0)
+					{
+						if(ranges[i].indiscriminate || (ranges[i].discriminating == foundUnit.PSide))
+						{
+							for (int j = 0; j < ranges[i].anomaly.Count; j++)
+							{
+								foundUnit.InflictDistort(this, ranges[i].anomaly[j], ranges[i].anomalyAmount[j]);
+							}
+						}
 					}
 				}
 			}
@@ -48,16 +70,19 @@ public class MoverChecker : MonoBehaviour
 			{
 				if (rangeAttackingPair.ContainsKey(ranges[i]))
 				{
-					if (ranges[i].anomaly != AnomalyIndex.None)
+					if (ranges[i].anomaly.Count > 0)
 					{
-						rangeAttackingPair[ranges[i]].DisflictDistort(this, ranges[i].anomaly, ranges[i].anomalyAmount);
+						for (int j = 0; j < ranges[i].anomaly.Count; j++)
+						{
+							rangeAttackingPair[ranges[i]].DisflictDistort(this, ranges[i].anomaly[j], ranges[i].anomalyAmount[j]);
+						}
 						
 					}
 					rangeAttackingPair[ranges[i]].attackedBy.Remove(ranges[i]);
 					rangeAttackingPair.Remove(ranges[i]);
 				}
 			}
-			ranges[i].atkModifier = myBase.atkModifier;
+			ranges[i].totalMod = ranges[i].atkModifier + myBase.atkModifier;
 		}
 		//Debug.Log(myBase.name + " : " + myBase.atkModifier.val);
 	}
@@ -66,14 +91,17 @@ public class MoverChecker : MonoBehaviour
 	{
 		mover = null;
 		Vector3 dest = transform.position + (transform.right * rng.xDistance) + (transform.up * rng.yDistance);
-		Collider2D c;
-		if(c = Physics2D.OverlapBox(dest, Vector2.one * 0.8f, 0))
+		Collider2D c = Physics2D.OverlapBox(dest, Vector2.one * 0.8f, 0);
+		if(c != null)
 		{
-			if (mover = c.GetComponent<UnitMover>())
+			mover = c.GetComponent<UnitMover>();
+			if (mover != null)
 			{
+
 				return true;
 			}
 		}
+		
 		return false;
 	}
 
@@ -85,15 +113,20 @@ public class MoverChecker : MonoBehaviour
 			{
 				if (rangeAttackingPair.ContainsKey(ranges[i]))
 				{
-					if (ranges[i].anomaly != AnomalyIndex.None)
+					if (ranges[i].anomaly.Count > 0)
 					{
-						rangeAttackingPair[ranges[i]].DisflictDistort(this, ranges[i].anomaly, ranges[i].anomalyAmount);
+						for (int j = 0; j < ranges[j].anomaly.Count; j++)
+						{
+							if(rangeAttackingPair[ranges[i]].DisflictDistort(this, ranges[i].anomaly[j], ranges[i].anomalyAmount[j]))
+							{
+								--j;
+							}
+						}
 					}
 					rangeAttackingPair[ranges[i]].attackedBy.Remove(ranges[i]);
 					rangeAttackingPair.Remove(ranges[i]);
 				}
 			}
-			ranges[i].atkModifier = myBase.atkModifier;
 		}
 	}
 
@@ -102,7 +135,7 @@ public class MoverChecker : MonoBehaviour
 		for (int i = 0; i < ranges.Count; i++)
 		{
 			Vector3 dest = transform.position + (transform.right * ranges[i].xDistance) + (transform.up * ranges[i].yDistance);
-			Gizmos.DrawWireCube(dest, Vector3.one * 0.9f);
+			Gizmos.DrawWireCube(dest, Vector3.one * 0.8f);
 		}
 	}
 
