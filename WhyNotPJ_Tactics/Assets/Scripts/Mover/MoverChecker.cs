@@ -47,8 +47,12 @@ public class MoverChecker : MonoBehaviour
 					foundUnit.attackedBy.Add(ranges[i]);
 					if(foundUnit.CurHp <= 0)
 					{
-						foundUnit.attackedBy.Remove(ranges[i]);
-						foundUnit.OnDead();
+						UpdateHandler.instance.AddUpdater((rng) =>
+						{
+							foundUnit.attackedBy.Remove(rng);
+							foundUnit.OnDead();
+						}, ranges[i]);
+						
 					}
 					else
 					{
@@ -105,7 +109,7 @@ public class MoverChecker : MonoBehaviour
 		return false;
 	}
 
-	private void OnDestroy()
+	public void DestActs()
 	{
 		for (int i = 0; i < ranges.Count; i++)
 		{
@@ -115,7 +119,7 @@ public class MoverChecker : MonoBehaviour
 				{
 					if (ranges[i].anomaly.Count > 0)
 					{
-						for (int j = 0; j < ranges[j].anomaly.Count; j++)
+						for (int j = 0; j < ranges[i].anomaly.Count; j++)
 						{
 							if(rangeAttackingPair[ranges[i]].DisflictDistort(this, ranges[i].anomaly[j], ranges[i].anomalyAmount[j]))
 							{

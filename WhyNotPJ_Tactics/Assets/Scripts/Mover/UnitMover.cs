@@ -146,7 +146,7 @@ public class UnitMover : MonoBehaviour
 			}
 			else
 			{
-				Destroy(gameObject);
+				UpdateHandler.instance.destTargets.Add(this);
 			}
 		}
 	}
