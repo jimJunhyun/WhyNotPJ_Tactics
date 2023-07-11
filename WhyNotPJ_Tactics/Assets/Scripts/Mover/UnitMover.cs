@@ -13,7 +13,6 @@ public class UnitMover : MonoBehaviour
 	public float rayDist = 0.5f;
 
 	public int hp;
-	public int prot;
 	public int hpModifier
 	{
 		get; set;
@@ -33,7 +32,7 @@ public class UnitMover : MonoBehaviour
 			int sum = 0;
 			for (int i = 0; i < attackedBy.Count; i++)
 			{
-				sum += Mathf.Max(attackedBy[i].totalAtk - prot, 0);
+				sum += Mathf.Max(attackedBy[i].totalAtk - defModifier, 0);
 				//Debug.Log($"{attackedBy[i].atk} + {attackedBy[i].atkModifier} = {attackedBy[i].totalAtk}");
 			}
 			return hp + hpModifier - sum;
@@ -61,6 +60,11 @@ public class UnitMover : MonoBehaviour
 	private void Awake()
 	{
 		prevMove = 0;
+	}
+
+	private void Start()
+	{
+		UpdateHandler.instance.allUnits.Add(this);
 	}
 
 	private void Update()
@@ -138,9 +142,8 @@ public class UnitMover : MonoBehaviour
 			InflictedAnomaly inf = curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Revive) + 1);
 			if (inf != null && inf.stacks > 0)
 			{
-				attackedBy.Clear(); //?
+				attackedBy.Clear();
 				DisflictDistort(GetComponent<MoverChecker>(), AnomalyIndex.Revive);
-				//UnityEditor.EditorApplication.isPaused = true;
 				transform.position += Vector3.one - Vector3.forward; // TEST
 				StartCoroutine(ImmunitySecond(1f));
 			}

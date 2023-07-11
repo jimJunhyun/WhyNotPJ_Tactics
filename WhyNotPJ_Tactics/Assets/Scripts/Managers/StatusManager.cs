@@ -102,6 +102,7 @@ public class StatusManager : MonoBehaviour
 
 	public void OnProtectActivate(UnitMover effector, MoverChecker inflicter, int amt)
 	{
+		Debug.Log("PROT");
 		effector.defModifier = effector.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Protect) + 1).stacks;
 	}
 

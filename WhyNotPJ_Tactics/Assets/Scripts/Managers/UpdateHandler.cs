@@ -23,21 +23,36 @@ public class UpdateHandler : MonoBehaviour
 
 	public List<UnitMover> destTargets = new List<UnitMover>();
 
+
+	public List<UnitMover> allUnits = new List<UnitMover>();
+
+	Coroutine c;
+
 	private void Awake()
 	{
 		instance = this;
 	}
 
 	// Update is called once per frame
-	void Update()
+	void LateUpdate()
     {
-        if(updActs.Count > 0)
+		for (int i = 0; i < allUnits.Count; i++)
+		{
+			if (allUnits[i].CurHp <= 0)
+			{
+				StartCoroutine(DelayDie(0, allUnits[i].OnDead));
+			}
+		}
+		if (updActs.Count > 0)
 		{
 			InvokeActs();
 		}
 		if (destTargets.Count > 0)
 		{
-			InvokeDests();
+			if (c == null)
+			{
+				c = StartCoroutine(DelayDie(4, InvokeDests));
+			}
 		}
 	}
 
@@ -47,16 +62,31 @@ public class UpdateHandler : MonoBehaviour
 		{
 			updActs[i].act.Invoke(updActs[i].range);
 		}
+		updActs.Clear();
 	}
 
 	void InvokeDests()
 	{
 		for (int i = 0; i < destTargets.Count; i++)
 		{
+			if(destTargets[i] != null)
+			{
+				destTargets[i].GetComponent<MoverChecker>().DestActs();
+			}
 			
-			Destroy(destTargets[i].gameObject);
 		}
+		for (int i = 0; i < destTargets.Count; i++)
+		{
+			if (destTargets[i] != null)
+			{
+				allUnits.Remove(destTargets[i]);
+				Destroy(destTargets[i].gameObject);
+			}
+
+		}
+				
 		destTargets.Clear();
+		StopAllCoroutines();
 	}
 
     public void AddUpdater(Action<AttackRange> act, AttackRange rng)
@@ -64,5 +94,16 @@ public class UpdateHandler : MonoBehaviour
 		UpdateAct updAct = new UpdateAct(act, rng);
 
 		updActs.Add(updAct);
+	}
+
+	IEnumerator DelayDie(float frame, Action act)
+	{
+		yield return null;
+		for (int i = 0; i < frame - 1; i++)
+		{
+			yield return null;
+		}
+		act.Invoke();
+		c = null;
 	}
 }

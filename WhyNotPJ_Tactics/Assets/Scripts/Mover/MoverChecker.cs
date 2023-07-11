@@ -32,10 +32,12 @@ public class MoverChecker : MonoBehaviour
 	private void Awake()
 	{
 		myBase = GetComponent<UnitMover>();
+		
 	}
 	//부활 이후의 위치 변경이 적용되기 전에 타격이 들어가서 죽어버림.
 	//그래서 무적 시간을 적용함.
 	//부활 연출 등에도 사용할 수 있을 듯.
+
 	private void Update()
 	{
 		for (int i = 0; i < ranges.Count; i++)
@@ -45,19 +47,20 @@ public class MoverChecker : MonoBehaviour
 				if (!rangeAttackingPair.ContainsKey(ranges[i]))
 				{
 					foundUnit.attackedBy.Add(ranges[i]);
-					if(foundUnit.CurHp <= 0)
-					{
-						UpdateHandler.instance.AddUpdater((rng) =>
-						{
-							foundUnit.attackedBy.Remove(rng);
-							foundUnit.OnDead();
-						}, ranges[i]);
+					//UnityEditor.EditorApplication.isPaused = true;
+					//if(foundUnit.CurHp <= 0)
+					//{
+					//	Debug.Log(foundUnit.name + " Killed by : " + name);
+					//	UpdateHandler.instance.AddUpdater((rng) =>
+					//	{
+					//		foundUnit.OnDead();
+					//	}, ranges[i]);
 						
-					}
-					else
-					{
-						rangeAttackingPair.Add(ranges[i], foundUnit);
-					}
+					//}
+					//else
+					//{
+					rangeAttackingPair.Add(ranges[i], foundUnit);
+					//}
 					if(ranges[i].anomaly.Count > 0)
 					{
 						if(ranges[i].indiscriminate || (ranges[i].discriminating == foundUnit.PSide))
@@ -111,6 +114,7 @@ public class MoverChecker : MonoBehaviour
 
 	public void DestActs()
 	{
+		Debug.Log("Dest Ref " + name);
 		for (int i = 0; i < ranges.Count; i++)
 		{
 			if (CheckCell(ranges[i], out UnitMover foundUnit))
