@@ -3,27 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-
 [Serializable]
 public class AttackRange
 {
-    public int xDistance;
-    public int yDistance;
-    public int atk;
+	public int xDistance;
+	public int yDistance;
+	public int atk;
 	public int atkModifier;
 
 	[HideInInspector]
 	public int totalMod;
 
-	public int totalAtk { get => atk + totalMod;}
+	public int totalAtk { get => atk + totalMod; }
 	public List<AnomalyIndex> anomaly;
 	public List<int> anomalyAmount;
 	public bool indiscriminate;
 	public bool discriminating;
+
+	[HideInInspector]
+	public MoverChecker owner;
 }
+
 
 public class MoverChecker : MonoBehaviour
 {
+
+
     public List<AttackRange> ranges;
 	Dictionary<AttackRange, UnitMover> rangeAttackingPair = new Dictionary<AttackRange, UnitMover>();
 
@@ -32,7 +37,10 @@ public class MoverChecker : MonoBehaviour
 	private void Awake()
 	{
 		myBase = GetComponent<UnitMover>();
-		
+		for (int i = 0; i < ranges.Count; i++)
+		{
+			ranges[i].owner = this;
+		}
 	}
 	//부활 이후의 위치 변경이 적용되기 전에 타격이 들어가서 죽어버림.
 	//그래서 무적 시간을 적용함.
@@ -46,7 +54,11 @@ public class MoverChecker : MonoBehaviour
 			{
 				if (!rangeAttackingPair.ContainsKey(ranges[i]))
 				{
-					foundUnit.attackedBy.Add(ranges[i]);
+					if (ranges[i].indiscriminate || (ranges[i].discriminating == foundUnit.PSide))
+					{
+						rangeAttackingPair.Add(ranges[i], foundUnit);
+						foundUnit.Damage(ranges[i]);
+					}
 					//UnityEditor.EditorApplication.isPaused = true;
 					//if(foundUnit.CurHp <= 0)
 					//{
@@ -57,36 +69,17 @@ public class MoverChecker : MonoBehaviour
 					//	}, ranges[i]);
 						
 					//}
-					//else
-					//{
-					rangeAttackingPair.Add(ranges[i], foundUnit);
-					//}
-					if(ranges[i].anomaly.Count > 0)
-					{
-						if(ranges[i].indiscriminate || (ranges[i].discriminating == foundUnit.PSide))
-						{
-							for (int j = 0; j < ranges[i].anomaly.Count; j++)
-							{
-								foundUnit.InflictDistort(this, ranges[i].anomaly[j], ranges[i].anomalyAmount[j]);
-							}
-						}
-					}
 				}
 			}
 			else
 			{
 				if (rangeAttackingPair.ContainsKey(ranges[i]))
 				{
-					if (ranges[i].anomaly.Count > 0)
+					if (ranges[i].indiscriminate || (ranges[i].discriminating == rangeAttackingPair[ranges[i]].PSide))
 					{
-						for (int j = 0; j < ranges[i].anomaly.Count; j++)
-						{
-							rangeAttackingPair[ranges[i]].DisflictDistort(this, ranges[i].anomaly[j], ranges[i].anomalyAmount[j]);
-						}
-						
+						rangeAttackingPair[ranges[i]].UnDamage(ranges[i]);
+						rangeAttackingPair.Remove(ranges[i]);
 					}
-					rangeAttackingPair[ranges[i]].attackedBy.Remove(ranges[i]);
-					rangeAttackingPair.Remove(ranges[i]);
 				}
 			}
 			ranges[i].totalMod = ranges[i].atkModifier + myBase.atkModifier;
@@ -114,28 +107,12 @@ public class MoverChecker : MonoBehaviour
 
 	public void DestActs()
 	{
-		Debug.Log("Dest Ref " + name);
-		for (int i = 0; i < ranges.Count; i++)
+		//Debug.Log("Dest Ref " + name);
+		foreach (var item in rangeAttackingPair.Keys)
 		{
-			if (CheckCell(ranges[i], out UnitMover foundUnit))
-			{
-				if (rangeAttackingPair.ContainsKey(ranges[i]))
-				{
-					if (ranges[i].anomaly.Count > 0)
-					{
-						for (int j = 0; j < ranges[i].anomaly.Count; j++)
-						{
-							if(rangeAttackingPair[ranges[i]].DisflictDistort(this, ranges[i].anomaly[j], ranges[i].anomalyAmount[j]))
-							{
-								--j;
-							}
-						}
-					}
-					rangeAttackingPair[ranges[i]].attackedBy.Remove(ranges[i]);
-					rangeAttackingPair.Remove(ranges[i]);
-				}
-			}
+			rangeAttackingPair[item].UnDamage(item);
 		}
+		rangeAttackingPair.Clear();
 	}
 
 	public void OnDrawGizmos()

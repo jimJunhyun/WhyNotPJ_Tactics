@@ -19,20 +19,20 @@ public class StatusManager : MonoBehaviour
 		allAnomalies.allAnomalies[0].onDisactivated += OnDizzyDisactivate;
 
 		allAnomalies.allAnomalies[1].onActivated += OnEmpowerActivate;
-		allAnomalies.allAnomalies[1].onUpdated += OnEmpowerActivate;
+		allAnomalies.allAnomalies[1].onUpdated += OnEmpowerUpdate;
 		allAnomalies.allAnomalies[1].onDisactivated += OnEmpowerDisactivate;
 
 		allAnomalies.allAnomalies[2].onActivated += OnVitalActivate;
-		allAnomalies.allAnomalies[2].onUpdated += OnVitalActivate;
+		allAnomalies.allAnomalies[2].onUpdated += OnVitalUpdate;
 		allAnomalies.allAnomalies[2].onDisactivated += OnVitalDisactivate;
 
-		allAnomalies.allAnomalies[2].onActivated += OnReviveActivate;
-		allAnomalies.allAnomalies[2].onUpdated += OnReviveActivate;
-		allAnomalies.allAnomalies[2].onDisactivated += OnReviveDisactivate;
+		allAnomalies.allAnomalies[3].onActivated += OnReviveActivate;
+		allAnomalies.allAnomalies[3].onUpdated += OnReviveUpdate;
+		allAnomalies.allAnomalies[3].onDisactivated += OnReviveDisactivate;
 
-		allAnomalies.allAnomalies[3].onActivated += OnProtectActivate;
-		allAnomalies.allAnomalies[3].onUpdated += OnProtectActivate;
-		allAnomalies.allAnomalies[3].onDisactivated += OnProtectDisactivate;
+		allAnomalies.allAnomalies[4].onActivated += OnProtectActivate;
+		allAnomalies.allAnomalies[4].onUpdated += OnProtectUpdate;
+		allAnomalies.allAnomalies[4].onDisactivated += OnProtectDisactivate;
 
 
 		//reflection을 사용하기보다 그냥 손수 하나하나 더하기로 결정.

@@ -272,10 +272,11 @@ MonoBehaviour:
     atk: 4
     atkModifier: 0
     totalMod: 0
-    anomaly: 04000000
+    anomaly: 02000000
     anomalyAmount: 02000000
     indiscriminate: 1
     discriminating: 0
+    owner: {fileID: 0}
 --- !u!1 &1284204937
 GameObject:
   m_ObjectHideFlags: 0
@@ -544,6 +545,7 @@ MonoBehaviour:
     anomalyAmount: 
     indiscriminate: 0
     discriminating: 0
+    owner: {fileID: 0}
   - xDistance: -1
     yDistance: 0
     atk: 2
@@ -553,6 +555,7 @@ MonoBehaviour:
     anomalyAmount: 
     indiscriminate: 0
     discriminating: 0
+    owner: {fileID: 0}
   - xDistance: 0
     yDistance: 1
     atk: 2
@@ -562,6 +565,7 @@ MonoBehaviour:
     anomalyAmount: 
     indiscriminate: 0
     discriminating: 0
+    owner: {fileID: 0}
   - xDistance: 0
     yDistance: -1
     atk: 2
@@ -571,6 +575,7 @@ MonoBehaviour:
     anomalyAmount: 
     indiscriminate: 0
     discriminating: 0
+    owner: {fileID: 0}
   - xDistance: 2
     yDistance: 1
     atk: 1
@@ -580,6 +585,7 @@ MonoBehaviour:
     anomalyAmount: 
     indiscriminate: 0
     discriminating: 0
+    owner: {fileID: 0}
   - xDistance: -2
     yDistance: 1
     atk: 1
@@ -589,6 +595,7 @@ MonoBehaviour:
     anomalyAmount: 
     indiscriminate: 0
     discriminating: 0
+    owner: {fileID: 0}
   - xDistance: -2
     yDistance: -1
     atk: 1
@@ -598,6 +605,7 @@ MonoBehaviour:
     anomalyAmount: 
     indiscriminate: 0
     discriminating: 0
+    owner: {fileID: 0}
   - xDistance: 2
     yDistance: -1
     atk: 1
@@ -607,6 +615,7 @@ MonoBehaviour:
     anomalyAmount: 
     indiscriminate: 0
     discriminating: 0
+    owner: {fileID: 0}
 --- !u!1 &1458662772
 GameObject:
   m_ObjectHideFlags: 0

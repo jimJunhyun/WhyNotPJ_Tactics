@@ -27,16 +27,8 @@ public class UnitMover : MonoBehaviour
 	}
 	public int CurHp
 	{
-		get
-		{
-			int sum = 0;
-			for (int i = 0; i < attackedBy.Count; i++)
-			{
-				sum += Mathf.Max(attackedBy[i].totalAtk - defModifier, 0);
-				//Debug.Log($"{attackedBy[i].atk} + {attackedBy[i].atkModifier} = {attackedBy[i].totalAtk}");
-			}
-			return hp + hpModifier - sum;
-		}
+		get;
+		set;
 	}
 	bool pSide = true;
 	public bool PSide
@@ -60,6 +52,7 @@ public class UnitMover : MonoBehaviour
 	private void Awake()
 	{
 		prevMove = 0;
+		CurHp = hp;
 	}
 
 	private void Start()
@@ -142,8 +135,12 @@ public class UnitMover : MonoBehaviour
 			InflictedAnomaly inf = curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Revive) + 1);
 			if (inf != null && inf.stacks > 0)
 			{
+				for (int i = 0; i < attackedBy.Count; i++)
+				{
+					UnDamage(attackedBy[i]);
+				}
 				attackedBy.Clear();
-				DisflictDistort(GetComponent<MoverChecker>(), AnomalyIndex.Revive);
+				DisflictDistort(null, AnomalyIndex.Revive);
 				transform.position += Vector3.one - Vector3.forward; // TEST
 				StartCoroutine(ImmunitySecond(1f));
 			}
@@ -154,7 +151,41 @@ public class UnitMover : MonoBehaviour
 		}
 	}
 
-	public void InflictDistort(MoverChecker inflicter, AnomalyIndex anomaly, int amt = 1)
+	public void Damage(AttackRange rng)
+	{
+		attackedBy.Add(rng);
+
+		for (int i = 0; i < rng.anomaly.Count; i++)
+		{
+			InflictDistort(rng.owner, rng.anomaly[i], rng.anomalyAmount[i]);
+		}
+		int sum = 0;
+		for (int i = 0; i < attackedBy.Count; i++)
+		{
+			sum += Mathf.Max(attackedBy[i].totalAtk - defModifier, 0);
+		}
+		CurHp = hp + hpModifier - sum;
+	}
+
+	public void UnDamage(AttackRange rng)
+	{
+		attackedBy.Remove(rng);
+
+		for (int i = 0; i < rng.anomaly.Count; i++)
+		{
+			DisflictDistort(rng.owner, rng.anomaly[i], rng.anomalyAmount[i]);
+		}
+
+		int sum = 0;
+		for (int i = 0; i < attackedBy.Count; i++)
+		{
+			sum += Mathf.Max(attackedBy[i].totalAtk - defModifier, 0);
+		}
+		Debug.Log(hp);
+		CurHp = hp + hpModifier - sum;
+	}
+
+	void InflictDistort(MoverChecker inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if(amt <= 0)
 			return;
@@ -170,7 +201,10 @@ public class UnitMover : MonoBehaviour
 				{
 					found.info.onActivated?.Invoke(this, inflicter, amt);
 				}
-				found.info.onUpdated?.Invoke(this, inflicter, amt);
+				else if (prevActivate)
+				{
+					found.info.onUpdated?.Invoke(this, inflicter, amt);
+				}
 			}
 		}
 		else
@@ -182,10 +216,9 @@ public class UnitMover : MonoBehaviour
 				ano.info.onActivated?.Invoke(this, inflicter, amt);
 			}
 			ano.stacks = Mathf.Clamp(ano.stacks, 1, StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].maxActivate);
-			ano.info.onUpdated?.Invoke(this, inflicter, amt);
 		}
 	}
-	public bool DisflictDistort(MoverChecker inflicter, AnomalyIndex anomaly, int amt = 1)
+	bool DisflictDistort(MoverChecker inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if(amt <= 0)
 			return false;
