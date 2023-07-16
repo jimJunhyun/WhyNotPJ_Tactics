@@ -3,24 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public struct AttackedBy
-{
-	public AttackRange range;
-	public float multi;
 
-	public AttackedBy(AttackRange rng, float mult)
-	{
-		range = rng;
-		multi = mult;
-	}
-}
-
-public class UnitMover : MonoBehaviour
+public class UnitDetails : MonoBehaviour
 {
     public float moveGap;
     public float moveDist = 1;
 
-	public float rayDist = 0.5f;
+	[SerializeField]
+	 float rayDist = 0.5f;
 
 	public int hp;
 	public int hpModifier
@@ -49,7 +39,7 @@ public class UnitMover : MonoBehaviour
 
 	public bool controlable = false;
 
-	public List<AttackedBy> attackedBy;
+	public List<AttackRange> attackedBy = new List<AttackRange>();
 
 	public List<InflictedAnomaly> curStatus = new List<InflictedAnomaly>();
 
@@ -59,18 +49,18 @@ public class UnitMover : MonoBehaviour
 	
 	float prevMove;
 
-	private void Awake()
+	public virtual void Awake()
 	{
 		prevMove = 0;
 		CurHp = hp;
 	}
 
-	private void Start()
+	public virtual void Start()
 	{
 		UpdateHandler.instance.allUnits.Add(this);
 	}
 
-	private void Update()
+	public virtual void Update()
 	{
 		if (controlable) //Temp
 		{
@@ -81,10 +71,12 @@ public class UnitMover : MonoBehaviour
 			if (movable)
 			{
 				RaycastHit2D hit;
+				bool moved = false;
 				if (Input.GetAxisRaw("Horizontal") > 0)
 				{
 					if (!Physics2D.Raycast(transform.position + Vector3.right * (transform.localScale.x / 1.8f), Vector3.right, rayDist))
 					{
+						moved = true;
 						transform.eulerAngles = new Vector3(0, 0, 270);
 						
 						transform.Translate(new Vector3(0, moveDist), Space.Self);
@@ -97,6 +89,7 @@ public class UnitMover : MonoBehaviour
 				{
 					if (!(hit = Physics2D.Raycast(transform.position - Vector3.right * (transform.localScale.x / 1.8f), Vector3.left, rayDist)))
 					{
+						moved = true;
 						transform.eulerAngles = new Vector3(0, 0, 90);
 						
 						transform.Translate(new Vector3(0, moveDist), Space.Self);
@@ -108,6 +101,7 @@ public class UnitMover : MonoBehaviour
 				{
 					if (!Physics2D.Raycast(transform.position + Vector3.up * (transform.localScale.y / 1.8f), Vector3.up, rayDist))
 					{
+						moved = true;
 						transform.eulerAngles = new Vector3(0, 0, 0);
 						transform.Translate(new Vector3(0, moveDist), Space.Self);
 						movable = false;
@@ -116,29 +110,37 @@ public class UnitMover : MonoBehaviour
 				}
 				else if (Input.GetAxisRaw("Vertical") < 0)
 				{
+					
 					if (!Physics2D.Raycast(transform.position - Vector3.up * (transform.localScale.y / 1.8f), Vector3.down, rayDist))
 					{
+
+						moved = true;
 						transform.eulerAngles = new Vector3(0, 0, 180);
 						transform.Translate(new Vector3(0, moveDist), Space.Self);
 						movable = false;
 						prevMove = Time.time;
 					}
 				}
+
+				if (moved)
+				{
+					UpdateHandler.instance.fieldUpdateAct.Invoke();
+				}
 			}
 		}
 	}
 
-	public void Immobilize()
+	public virtual void Immobilize()
 	{
 		movable = false;
 	}
 
-	public void Mobilize()
+	public virtual void Mobilize()
 	{
 		movable = true;
 	}
 
-	public void OnDead()
+	public virtual void OnDead()
 	{
 		if (!immunity)
 		{
@@ -147,7 +149,7 @@ public class UnitMover : MonoBehaviour
 			{
 				for (int i = 0; i < attackedBy.Count; i++)
 				{
-					UnDamage(attackedBy[i].range);
+					UnDamage(attackedBy[i]);
 				}
 				attackedBy.Clear();
 				DisflictDistort(null, AnomalyIndex.Revive);
@@ -161,9 +163,10 @@ public class UnitMover : MonoBehaviour
 		}
 	}
 
-	public void Damage(AttackRange rng, float mult = 1f)
+	public virtual void Damage(AttackRange rng, float mult = 1)
 	{
-		attackedBy.Add(new AttackedBy(rng, mult));
+		rng.totalModMult = mult;
+		attackedBy.Add(rng);
 
 		for (int i = 0; i < rng.anomaly.Count; i++)
 		{
@@ -172,14 +175,15 @@ public class UnitMover : MonoBehaviour
 		int sum = 0;
 		for (int i = 0; i < attackedBy.Count; i++)
 		{
-			sum += Mathf.Max((int)(attackedBy[i].range.totalAtk * attackedBy[i].multi) - defModifier, 0);
+			sum += Mathf.Max((int)(attackedBy[i].totalAtk) - defModifier, 0);
 		}
 		CurHp = hp + hpModifier - sum;
 	}
 
-	public void UnDamage(AttackRange rng)
+	public virtual void UnDamage(AttackRange rng)
 	{
-		attackedBy.Remove(attackedBy.Find(by => by.range == rng));
+		rng.totalModMult = 1;
+		attackedBy.Remove(attackedBy.Find(by => by == rng));
 
 		for (int i = 0; i < rng.anomaly.Count; i++)
 		{
@@ -189,12 +193,12 @@ public class UnitMover : MonoBehaviour
 		int sum = 0;
 		for (int i = 0; i < attackedBy.Count; i++)
 		{
-			sum += Mathf.Max((int)(attackedBy[i].range.totalAtk * attackedBy[i].multi) - defModifier, 0);
+			sum += Mathf.Max((int)(attackedBy[i].totalAtk) - defModifier, 0);
 		}
 		CurHp = hp + hpModifier - sum;
 	}
 
-	void InflictDistort(MoverChecker inflicter, AnomalyIndex anomaly, int amt = 1)
+	void InflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if(amt <= 0)
 			return;
@@ -227,7 +231,7 @@ public class UnitMover : MonoBehaviour
 			ano.stacks = Mathf.Clamp(ano.stacks, 1, StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].maxActivate);
 		}
 	}
-	bool DisflictDistort(MoverChecker inflicter, AnomalyIndex anomaly, int amt = 1)
+	bool DisflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if(amt <= 0)
 			return false;

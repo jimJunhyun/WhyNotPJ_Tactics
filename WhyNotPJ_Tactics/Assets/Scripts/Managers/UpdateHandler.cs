@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.Events;
 
 struct UpdateAct
 {
@@ -21,10 +22,11 @@ public class UpdateHandler : MonoBehaviour
 
 	List<UpdateAct> updActs = new List<UpdateAct>();
 
-	public List<UnitMover> destTargets = new List<UnitMover>();
+	public List<UnitDetails> destTargets = new List<UnitDetails>();
 
+	public List<UnitDetails> allUnits = new List<UnitDetails>();
 
-	public List<UnitMover> allUnits = new List<UnitMover>();
+	public Action fieldUpdateAct;
 
 	Coroutine c;
 
@@ -71,7 +73,7 @@ public class UpdateHandler : MonoBehaviour
 		{
 			if(destTargets[i] != null)
 			{
-				destTargets[i].GetComponent<MoverChecker>().DestActs();
+				destTargets[i].GetComponent<UnitBasic>().DestActs();
 			}
 			
 		}
