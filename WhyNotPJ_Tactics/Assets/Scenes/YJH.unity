@@ -543,7 +543,7 @@ MonoBehaviour:
     totalMod: 0
     anomaly: 
     anomalyAmount: 
-    indiscriminate: 0
+    indiscriminate: 1
     discriminating: 0
     owner: {fileID: 0}
   - xDistance: -1
@@ -553,7 +553,7 @@ MonoBehaviour:
     totalMod: 0
     anomaly: 
     anomalyAmount: 
-    indiscriminate: 0
+    indiscriminate: 1
     discriminating: 0
     owner: {fileID: 0}
   - xDistance: 0
@@ -563,7 +563,7 @@ MonoBehaviour:
     totalMod: 0
     anomaly: 
     anomalyAmount: 
-    indiscriminate: 0
+    indiscriminate: 1
     discriminating: 0
     owner: {fileID: 0}
   - xDistance: 0
@@ -573,7 +573,7 @@ MonoBehaviour:
     totalMod: 0
     anomaly: 
     anomalyAmount: 
-    indiscriminate: 0
+    indiscriminate: 1
     discriminating: 0
     owner: {fileID: 0}
   - xDistance: 2
@@ -583,7 +583,7 @@ MonoBehaviour:
     totalMod: 0
     anomaly: 
     anomalyAmount: 
-    indiscriminate: 0
+    indiscriminate: 1
     discriminating: 0
     owner: {fileID: 0}
   - xDistance: -2
@@ -593,7 +593,7 @@ MonoBehaviour:
     totalMod: 0
     anomaly: 
     anomalyAmount: 
-    indiscriminate: 0
+    indiscriminate: 1
     discriminating: 0
     owner: {fileID: 0}
   - xDistance: -2
@@ -603,7 +603,7 @@ MonoBehaviour:
     totalMod: 0
     anomaly: 
     anomalyAmount: 
-    indiscriminate: 0
+    indiscriminate: 1
     discriminating: 0
     owner: {fileID: 0}
   - xDistance: 2
@@ -613,7 +613,7 @@ MonoBehaviour:
     totalMod: 0
     anomaly: 
     anomalyAmount: 
-    indiscriminate: 0
+    indiscriminate: 1
     discriminating: 0
     owner: {fileID: 0}
 --- !u!1 &1458662772

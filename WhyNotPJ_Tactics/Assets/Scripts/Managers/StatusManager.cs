@@ -34,7 +34,9 @@ public class StatusManager : MonoBehaviour
 		allAnomalies.allAnomalies[4].onUpdated += OnProtectUpdate;
 		allAnomalies.allAnomalies[4].onDisactivated += OnProtectDisactivate;
 
-
+		allAnomalies.allAnomalies[5].onActivated += OnPlagueActivate;
+		allAnomalies.allAnomalies[5].onUpdated += OnPlagueUpdate;
+		allAnomalies.allAnomalies[5].onDisactivated += OnPlagueDisactivate;
 		//reflection을 사용하기보다 그냥 손수 하나하나 더하기로 결정.
 		//실행속도를 높이기 위함.
 
@@ -112,6 +114,21 @@ public class StatusManager : MonoBehaviour
 	}
 
 	public void OnProtectDisactivate(UnitMover effector, MoverChecker inflicter, int amt)
+	{
+
+	}
+
+	public void OnPlagueActivate(UnitMover effector, MoverChecker inflicter, int amt)
+	{
+		
+	}
+
+	public void OnPlagueUpdate(UnitMover effector, MoverChecker inflicter, int amt)
+	{
+		
+	}
+
+	public void OnPlagueDisactivate(UnitMover effector, MoverChecker inflicter, int amt)
 	{
 
 	}

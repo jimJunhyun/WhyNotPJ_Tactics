@@ -3,7 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+public struct AttackedBy
+{
+	public AttackRange range;
+	public float multi;
 
+	public AttackedBy(AttackRange rng, float mult)
+	{
+		range = rng;
+		multi = mult;
+	}
+}
 
 public class UnitMover : MonoBehaviour
 {
@@ -39,7 +49,7 @@ public class UnitMover : MonoBehaviour
 
 	public bool controlable = false;
 
-	public List<AttackRange> attackedBy;
+	public List<AttackedBy> attackedBy;
 
 	public List<InflictedAnomaly> curStatus = new List<InflictedAnomaly>();
 
@@ -137,7 +147,7 @@ public class UnitMover : MonoBehaviour
 			{
 				for (int i = 0; i < attackedBy.Count; i++)
 				{
-					UnDamage(attackedBy[i]);
+					UnDamage(attackedBy[i].range);
 				}
 				attackedBy.Clear();
 				DisflictDistort(null, AnomalyIndex.Revive);
@@ -151,9 +161,9 @@ public class UnitMover : MonoBehaviour
 		}
 	}
 
-	public void Damage(AttackRange rng)
+	public void Damage(AttackRange rng, float mult = 1f)
 	{
-		attackedBy.Add(rng);
+		attackedBy.Add(new AttackedBy(rng, mult));
 
 		for (int i = 0; i < rng.anomaly.Count; i++)
 		{
@@ -162,14 +172,14 @@ public class UnitMover : MonoBehaviour
 		int sum = 0;
 		for (int i = 0; i < attackedBy.Count; i++)
 		{
-			sum += Mathf.Max(attackedBy[i].totalAtk - defModifier, 0);
+			sum += Mathf.Max((int)(attackedBy[i].range.totalAtk * attackedBy[i].multi) - defModifier, 0);
 		}
 		CurHp = hp + hpModifier - sum;
 	}
 
 	public void UnDamage(AttackRange rng)
 	{
-		attackedBy.Remove(rng);
+		attackedBy.Remove(attackedBy.Find(by => by.range == rng));
 
 		for (int i = 0; i < rng.anomaly.Count; i++)
 		{
@@ -179,9 +189,8 @@ public class UnitMover : MonoBehaviour
 		int sum = 0;
 		for (int i = 0; i < attackedBy.Count; i++)
 		{
-			sum += Mathf.Max(attackedBy[i].totalAtk - defModifier, 0);
+			sum += Mathf.Max((int)(attackedBy[i].range.totalAtk * attackedBy[i].multi) - defModifier, 0);
 		}
-		Debug.Log(hp);
 		CurHp = hp + hpModifier - sum;
 	}
 

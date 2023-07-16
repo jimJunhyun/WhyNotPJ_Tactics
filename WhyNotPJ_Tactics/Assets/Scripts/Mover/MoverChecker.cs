@@ -22,6 +22,7 @@ public class AttackRange
 
 	[HideInInspector]
 	public MoverChecker owner;
+	public Vector2 myPos => (Vector2)owner.transform.position + new Vector2(xDistance, yDistance);
 }
 
 
@@ -59,16 +60,6 @@ public class MoverChecker : MonoBehaviour
 						rangeAttackingPair.Add(ranges[i], foundUnit);
 						foundUnit.Damage(ranges[i]);
 					}
-					//UnityEditor.EditorApplication.isPaused = true;
-					//if(foundUnit.CurHp <= 0)
-					//{
-					//	Debug.Log(foundUnit.name + " Killed by : " + name);
-					//	UpdateHandler.instance.AddUpdater((rng) =>
-					//	{
-					//		foundUnit.OnDead();
-					//	}, ranges[i]);
-						
-					//}
 				}
 			}
 			else
