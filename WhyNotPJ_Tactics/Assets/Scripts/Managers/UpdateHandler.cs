@@ -22,9 +22,9 @@ public class UpdateHandler : MonoBehaviour
 
 	List<UpdateAct> updActs = new List<UpdateAct>();
 
-	public List<UnitDetails> destTargets = new List<UnitDetails>();
+	public List<UnitBasic> destTargets = new List<UnitBasic>();
 
-	public List<UnitDetails> allUnits = new List<UnitDetails>();
+	public List<UnitBasic> allUnits = new List<UnitBasic>();
 
 	public Action fieldUpdateAct;
 
@@ -40,7 +40,7 @@ public class UpdateHandler : MonoBehaviour
     {
 		for (int i = 0; i < allUnits.Count; i++)
 		{
-			if (allUnits[i].CurHp <= 0)
+			if (allUnits[i].myDet.CurHp <= 0)
 			{
 				StartCoroutine(DelayDie(0, allUnits[i].OnDead));
 			}

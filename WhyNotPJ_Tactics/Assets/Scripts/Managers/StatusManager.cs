@@ -38,104 +38,126 @@ public class StatusManager : MonoBehaviour
 		allAnomalies.allAnomalies[5].onUpdated += OnInfSourceUpdate;
 		allAnomalies.allAnomalies[5].onDisactivated += OnInfSourceDisactivate;
 
-
+		allAnomalies.allAnomalies[6].onActivated += OnInfActivate;
+		allAnomalies.allAnomalies[6].onUpdated += OnInfUpdate;
+		allAnomalies.allAnomalies[6].onDisactivated += OnInfDisactivate;
 		//reflection을 사용하기보다 그냥 손수 하나하나 더하기로 결정.
 		//실행속도를 높이기 위함.
 
 	}
 
-	public void OnDizzyActivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnDizzyActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.Immobilize();
+		effector.myDet.Immobilize();
 	}
 
-	public void OnDizzyUpdate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnDizzyUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
 
 	}
 
-	public void OnDizzyDisactivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnDizzyDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.Mobilize();
+		effector.myDet.Mobilize();
 	}
 
-	public void OnEmpowerActivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnEmpowerActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.atkModifier = effector.curStatus.Find(x=>x.info.Id == ((int)AnomalyIndex.Empower) + 1).stacks;
-		//for (int i = 0; i < effector.; i++)
-		//{
-
-		//}
+		effector.myDet.atkModifier =effector.myDet.curStatus.Find(x=>x.info.Id == ((int)AnomalyIndex.Empower) + 1).stacks;
 	}
 
-	public void OnEmpowerUpdate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnEmpowerUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.atkModifier += amt;
+		effector.myDet.atkModifier += amt;
 	}
 
-	public void OnEmpowerDisactivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnEmpowerDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
 		
 	}
 
-	public void OnVitalActivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnVitalActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.hpModifier = effector.curStatus.Find(x=>x.info.Id == ((int)AnomalyIndex.Vital) + 1).stacks;
+		effector.myDet.hpModifier = effector.myDet.curStatus.Find(x=>x.info.Id == ((int)AnomalyIndex.Vital) + 1).stacks;
 	}
 
-	public void OnVitalUpdate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnVitalUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.hpModifier += amt;
+		effector.myDet.hpModifier += amt;
 	}
 
-	public void OnVitalDisactivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnVitalDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
 		
 	}
 
-	public void OnReviveActivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnReviveActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
 		
 	}
 
-	public void OnReviveUpdate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnReviveUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
 
 	}
 
-	public void OnReviveDisactivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnReviveDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
 		
 	}
 
-	public void OnProtectActivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnProtectActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		Debug.Log("PROT");
-		effector.defModifier = effector.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Protect) + 1).stacks;
+		effector.myDet.defModifier = effector.myDet.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Protect) + 1).stacks;
 	}
 
-	public void OnProtectUpdate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnProtectUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.defModifier += amt;
+		effector.myDet.defModifier += amt;
 	}
 
-	public void OnProtectDisactivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnProtectDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
 
 	}
 
-	public void OnInfSourceActivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnInfSourceActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		
+		int srcAmt = effector.myDet.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.InfSource) + 1).stacks;
+		for (int i = 0; i < effector.ranges.Count; i++)
+		{
+			effector.ranges[i].AppendAno(AnomalyIndex.Infect, srcAmt);
+		}
 	}
 
-	public void OnInfSourceUpdate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnInfSourceUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		
+		for (int i = 0; i < effector.ranges.Count; i++)
+		{
+			effector.ranges[i].AppendAno(AnomalyIndex.Infect, amt);
+		}
 	}
 
-	public void OnInfSourceDisactivate(UnitDetails effector, UnitBasic inflicter, int amt)
+	public void OnInfSourceDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
+		for (int i = 0; i < effector.ranges.Count; i++)
+		{
+			effector.ranges[i].RemoveAno(AnomalyIndex.Infect);
+		}
+	}
 
+	public void OnInfActivate(UnitBasic effector, UnitBasic inflicter, int amt)
+	{
+		int infAmt = effector.myDet.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Infect) + 1).stacks;
+		effector.myDet.hpModifier -= infAmt;
+	}
+
+	public void OnInfUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
+	{
+		effector.myDet.hpModifier -= amt;
+	}
+
+	public void OnInfDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
+	{
 	}
 }

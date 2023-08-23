@@ -41,9 +41,9 @@ public class Anomaly
     public int maxActivate;
 
     //효과를 받은 사람 , 효과를 부여한 사람, 발동을 트리거한 양
-    public UnityAction<UnitDetails, UnitBasic, int> onActivated;
-    public UnityAction<UnitDetails, UnitBasic, int> onUpdated;
-    public UnityAction<UnitDetails, UnitBasic, int> onDisactivated;
+    public UnityAction<UnitBasic, UnitBasic, int> onActivated;
+    public UnityAction<UnitBasic, UnitBasic, int> onUpdated;
+    public UnityAction<UnitBasic, UnitBasic, int> onDisactivated;
 }
 
 
