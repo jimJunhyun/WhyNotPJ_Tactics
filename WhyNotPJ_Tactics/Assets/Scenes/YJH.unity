@@ -133,8 +133,6 @@ GameObject:
   m_Component:
   - component: {fileID: 473673711}
   - component: {fileID: 473673710}
-  - component: {fileID: 473673715}
-  - component: {fileID: 473673712}
   - component: {fileID: 473673713}
   - component: {fileID: 473673714}
   m_Layer: 8
@@ -211,25 +209,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &473673712
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 473673709}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d45937dc45ba4c429fe77f17f1b216b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveGap: 0.6
-  moveDist: 0.5
-  rayDist: 0.25
-  hp: 4
-  controlable: 1
-  attackedBy: []
-  immunity: 0
 --- !u!61 &473673713
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -287,6 +266,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f19a7de5b7225a4ba8033d7b19bb50a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveGap: 0.25
+  moveDist: 0.5
+  rayDist: 0.25
+  hp: 4
+  controlable: 1
+  attackedBy: []
+  immunity: 0
   ranges:
   - xDistance: 0
     yDistance: 1
@@ -298,19 +284,6 @@ MonoBehaviour:
     anomalyAmount: 01000000
     targetSide: 3
     owner: {fileID: 0}
-  myDet: {fileID: 0}
---- !u!114 &473673715
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 473673709}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 775422737f16dce49a0e396f3aef14c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1284204937
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,7 +412,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1343471187}
   - component: {fileID: 1343471186}
-  - component: {fileID: 1343471185}
   - component: {fileID: 1343471184}
   - component: {fileID: 1343471188}
   m_Layer: 9
@@ -494,25 +466,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &1343471185
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1343471183}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d45937dc45ba4c429fe77f17f1b216b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveGap: 1.5
-  moveDist: 0.5
-  rayDist: 0.25
-  hp: 5
-  controlable: 0
-  attackedBy: []
-  immunity: 0
 --- !u!212 &1343471186
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -592,6 +545,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f19a7de5b7225a4ba8033d7b19bb50a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveGap: 1.5
+  moveDist: 0.5
+  rayDist: 0.25
+  hp: 5
+  controlable: 0
+  attackedBy: []
+  immunity: 0
   ranges:
   - xDistance: 1
     yDistance: 0
@@ -673,7 +633,6 @@ MonoBehaviour:
     anomalyAmount: 
     targetSide: 3
     owner: {fileID: 0}
-  myDet: {fileID: 0}
 --- !u!1 &1458662772
 GameObject:
   m_ObjectHideFlags: 0

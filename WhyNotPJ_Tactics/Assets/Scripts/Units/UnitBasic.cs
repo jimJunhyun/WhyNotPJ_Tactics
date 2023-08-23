@@ -66,18 +66,59 @@ public class AttackRange
 }
 
 
-public class UnitBasic : UnitBase
+public class UnitBasic : MonoBehaviour
 {
-    public List<AttackRange> ranges;
-	Dictionary<AttackRange, UnitBasic> rangeAttackingPair = new Dictionary<AttackRange, UnitBasic>();
+
+	public float moveGap;
+	public float moveDist = 1;
+
+	[SerializeField]
+	float rayDist = 0.5f;
+
+	public int hp;
+	public int hpModifier
+	{
+		get; set;
+	}
+	public int atkModifier
+	{
+		get; set;
+	}
+	public int defModifier
+	{
+		get; set;
+	}
+	public int CurHp
+	{
+		get;
+		set;
+	}
+	bool pSide = true;
+	public bool PSide
+	{
+		get => pSide;
+		set => pSide = value;
+	}
+
+	public bool controlable = false;
+
+	public List<AttackRange> attackedBy = new List<AttackRange>();
+
+	public List<InflictedAnomaly> curStatus = new List<InflictedAnomaly>();
 
 	[HideInInspector]
-	public UnitDetails myDet;
+	public bool immunity = false;
+	bool movable = true;
+
+	float prevMove;
+
+	public List<AttackRange> ranges;
+	Dictionary<AttackRange, UnitBasic> rangeAttackingPair = new Dictionary<AttackRange, UnitBasic>();
 
 	private void Awake()
 	{
-		
-		myDet = GetComponent<UnitDetails>();
+		prevMove = 0;
+		CurHp = hp;
 		for (int i = 0; i < ranges.Count; i++)
 		{
 			ranges[i].owner = this;
@@ -96,9 +137,10 @@ public class UnitBasic : UnitBase
 
 	private void OnUpdateAct()
 	{
+
 		for (int i = 0; i < ranges.Count; i++)
 		{
-			ranges[i].totalMod = ranges[i].atkModifier + myDet.atkModifier;
+			ranges[i].totalMod = ranges[i].atkModifier + atkModifier;
 			if (CheckCell(ranges[i], out UnitBasic foundUnit))
 			{
 				if (!rangeAttackingPair.ContainsKey(ranges[i]))
@@ -119,6 +161,77 @@ public class UnitBasic : UnitBase
 			
 		}
 		//Debug.Log(myBase.name + " : " + myBase.atkModifier.val);
+	}
+
+	void Update()
+	{
+		if (controlable) //Temp
+		{
+			if (Time.time - prevMove >= moveGap)
+			{
+				movable = true;
+			}
+			if (movable)
+			{
+				RaycastHit2D hit;
+				bool moved = false;
+				if (Input.GetAxisRaw("Horizontal") > 0)
+				{
+					if (!Physics2D.Raycast(transform.position + Vector3.right * (transform.localScale.x / 1.8f), Vector3.right, rayDist))
+					{
+						moved = true;
+						transform.eulerAngles = new Vector3(0, 0, 270);
+
+						transform.Translate(new Vector3(0, moveDist), Space.Self);
+						movable = false;
+						prevMove = Time.time;
+					}
+
+				}
+				else if (Input.GetAxisRaw("Horizontal") < 0)
+				{
+					if (!(hit = Physics2D.Raycast(transform.position - Vector3.right * (transform.localScale.x / 1.8f), Vector3.left, rayDist)))
+					{
+
+						moved = true;
+						transform.eulerAngles = new Vector3(0, 0, 90);
+
+						transform.Translate(new Vector3(0, moveDist), Space.Self);
+						movable = false;
+						prevMove = Time.time;
+					}
+				}
+				else if (Input.GetAxisRaw("Vertical") > 0)
+				{
+					if (!(hit = Physics2D.Raycast(transform.position + Vector3.up * (transform.localScale.y / 1.8f), Vector3.up, rayDist)))
+					{
+						moved = true;
+						transform.eulerAngles = new Vector3(0, 0, 0);
+						transform.Translate(new Vector3(0, moveDist), Space.Self);
+						movable = false;
+						prevMove = Time.time;
+					}
+				}
+				else if (Input.GetAxisRaw("Vertical") < 0)
+				{
+
+					if (!(hit = Physics2D.Raycast(transform.position - Vector3.up * (transform.localScale.y / 1.8f), Vector3.down, rayDist)))
+					{
+
+						moved = true;
+						transform.eulerAngles = new Vector3(0, 0, 180);
+						transform.Translate(new Vector3(0, moveDist), Space.Self);
+						movable = false;
+						prevMove = Time.time;
+					}
+				}
+
+				if (moved)
+				{
+					UpdateHandler.instance.fieldUpdateAct.Invoke();
+				}
+			}
+		}
 	}
 
 	bool CheckCell(AttackRange rng, out UnitBasic mover)
@@ -143,9 +256,9 @@ public class UnitBasic : UnitBase
 	{
 		if (amt <= 0)
 			return;
-		if (myDet.curStatus.Exists(item => item.info.Id == (((int)anomaly) + 1)))
+		if (curStatus.Exists(item => item.info.Id == (((int)anomaly) + 1)))
 		{
-			InflictedAnomaly found = myDet.curStatus.Find(item => item.info.Id == (((int)anomaly) + 1));
+			InflictedAnomaly found = curStatus.Find(item => item.info.Id == (((int)anomaly) + 1));
 			if (found != null)
 			{
 				bool prevActivate = found.stacks >= StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate;
@@ -164,7 +277,7 @@ public class UnitBasic : UnitBase
 		else
 		{
 			InflictedAnomaly ano = new InflictedAnomaly(StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)], amt);
-			myDet.curStatus.Add(ano);
+			curStatus.Add(ano);
 			if (amt >= StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate)
 			{
 				ano.info.onActivated?.Invoke(this, inflicter, amt);
@@ -172,13 +285,14 @@ public class UnitBasic : UnitBase
 			ano.stacks = Mathf.Clamp(ano.stacks, 1, StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].maxActivate);
 		}
 	}
+
 	bool DisflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if (amt <= 0)
 			return false;
-		if (myDet.curStatus.Exists(item => item.info.Id == (((int)anomaly) + 1)))
+		if (curStatus.Exists(item => item.info.Id == (((int)anomaly) + 1)))
 		{
-			InflictedAnomaly found = myDet.curStatus.Find(item => item.info.Id == (((int)anomaly) + 1));
+			InflictedAnomaly found = curStatus.Find(item => item.info.Id == (((int)anomaly) + 1));
 			if (found != null)
 			{
 				bool prevActivate = found.stacks >= StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate;
@@ -190,7 +304,7 @@ public class UnitBasic : UnitBase
 				}
 				if (found.stacks <= 0)
 				{
-					myDet.curStatus.Remove(found);
+					curStatus.Remove(found);
 					return true;
 				}
 			}
@@ -201,24 +315,24 @@ public class UnitBasic : UnitBase
 	public virtual void Damage(AttackRange rng, float mult = 1)
 	{
 		rng.totalModMult = mult;
-		myDet.attackedBy.Add(rng);
+		attackedBy.Add(rng);
 
 		for (int i = 0; i < rng.anomaly.Count; i++)
 		{
 			InflictDistort(rng.owner, rng.anomaly[i], rng.anomalyAmount[i]);
 		}
 		int sum = 0;
-		for (int i = 0; i < myDet.attackedBy.Count; i++)
+		for (int i = 0; i < attackedBy.Count; i++)
 		{
-			sum += Mathf.Max((int)(myDet.attackedBy[i].totalAtk) - myDet.defModifier, 0);
+			sum += Mathf.Max((int)(attackedBy[i].totalAtk) - defModifier, 0);
 		}
-		myDet.CurHp = myDet.hp + myDet.hpModifier - sum;
+		CurHp = hp + hpModifier - sum;
 	}
 
 	public virtual void UnDamage(AttackRange rng)
 	{
 		rng.totalModMult = 1;
-		myDet.attackedBy.Remove(myDet.attackedBy.Find(by => by == rng));
+		attackedBy.Remove(attackedBy.Find(by => by == rng));
 
 		for (int i = 0; i < rng.anomaly.Count; i++)
 		{
@@ -226,25 +340,25 @@ public class UnitBasic : UnitBase
 		}
 
 		int sum = 0;
-		for (int i = 0; i < myDet.attackedBy.Count; i++)
+		for (int i = 0; i < attackedBy.Count; i++)
 		{
-			sum += Mathf.Max((int)(myDet.attackedBy[i].totalAtk) - myDet.defModifier, 0);
+			sum += Mathf.Max((int)(attackedBy[i].totalAtk) - defModifier, 0);
 		}
-		myDet.CurHp = myDet.hp + myDet.hpModifier - sum;
+		CurHp = hp + hpModifier - sum;
 	}
 
 	public virtual void OnDead()
 	{
-		if (!myDet.immunity)
+		if (!immunity)
 		{
-			InflictedAnomaly inf = myDet.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Revive) + 1);
+			InflictedAnomaly inf = curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Revive) + 1);
 			if (inf != null && inf.stacks > 0)
 			{
-				for (int i = 0; i < myDet.attackedBy.Count; i++)
+				for (int i = 0; i < attackedBy.Count; i++)
 				{
-					UnDamage(myDet.attackedBy[i]);
+					UnDamage(attackedBy[i]);
 				}
-				myDet.attackedBy.Clear();
+				attackedBy.Clear();
 				DisflictDistort(null, AnomalyIndex.Revive);
 				transform.position += Vector3.one - Vector3.forward; // TEST
 				StartCoroutine(ImmunitySecond(1f));
@@ -276,10 +390,21 @@ public class UnitBasic : UnitBase
 			Gizmos.DrawWireCube(dest, Vector3.one * 0.3f);
 		}
 	}
+
+	public virtual void Immobilize()
+	{
+		movable = false;
+	}
+
+	public virtual void Mobilize()
+	{
+		movable = true;
+	}
+
 	IEnumerator ImmunitySecond(float sec)
 	{
-		myDet.immunity = true;
+		immunity = true;
 		yield return new WaitForSeconds(sec);
-		myDet.immunity = false;
+		immunity = false;
 	}
 }

@@ -40,7 +40,7 @@ public class UpdateHandler : MonoBehaviour
     {
 		for (int i = 0; i < allUnits.Count; i++)
 		{
-			if (allUnits[i].myDet.CurHp <= 0)
+			if (allUnits[i].CurHp <= 0)
 			{
 				StartCoroutine(DelayDie(0, allUnits[i].OnDead));
 			}

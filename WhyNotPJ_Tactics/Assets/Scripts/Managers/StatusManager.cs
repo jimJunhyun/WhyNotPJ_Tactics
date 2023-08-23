@@ -48,7 +48,7 @@ public class StatusManager : MonoBehaviour
 
 	public void OnDizzyActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.myDet.Immobilize();
+		effector.Immobilize();
 	}
 
 	public void OnDizzyUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
@@ -58,17 +58,17 @@ public class StatusManager : MonoBehaviour
 
 	public void OnDizzyDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.myDet.Mobilize();
+		effector.Mobilize();
 	}
 
 	public void OnEmpowerActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.myDet.atkModifier =effector.myDet.curStatus.Find(x=>x.info.Id == ((int)AnomalyIndex.Empower) + 1).stacks;
+		effector.atkModifier =effector.curStatus.Find(x=>x.info.Id == ((int)AnomalyIndex.Empower) + 1).stacks;
 	}
 
 	public void OnEmpowerUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.myDet.atkModifier += amt;
+		effector.atkModifier += amt;
 	}
 
 	public void OnEmpowerDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
@@ -78,12 +78,12 @@ public class StatusManager : MonoBehaviour
 
 	public void OnVitalActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.myDet.hpModifier = effector.myDet.curStatus.Find(x=>x.info.Id == ((int)AnomalyIndex.Vital) + 1).stacks;
+		effector.hpModifier = effector.curStatus.Find(x=>x.info.Id == ((int)AnomalyIndex.Vital) + 1).stacks;
 	}
 
 	public void OnVitalUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.myDet.hpModifier += amt;
+		effector.hpModifier += amt;
 	}
 
 	public void OnVitalDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
@@ -108,12 +108,12 @@ public class StatusManager : MonoBehaviour
 
 	public void OnProtectActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.myDet.defModifier = effector.myDet.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Protect) + 1).stacks;
+		effector.defModifier = effector.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Protect) + 1).stacks;
 	}
 
 	public void OnProtectUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.myDet.defModifier += amt;
+		effector.defModifier += amt;
 	}
 
 	public void OnProtectDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
@@ -123,7 +123,7 @@ public class StatusManager : MonoBehaviour
 
 	public void OnInfSourceActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		int srcAmt = effector.myDet.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.InfSource) + 1).stacks;
+		int srcAmt = effector.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.InfSource) + 1).stacks;
 		for (int i = 0; i < effector.ranges.Count; i++)
 		{
 			effector.ranges[i].AppendAno(AnomalyIndex.Infect, srcAmt);
@@ -148,13 +148,13 @@ public class StatusManager : MonoBehaviour
 
 	public void OnInfActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		int infAmt = effector.myDet.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Infect) + 1).stacks;
-		effector.myDet.hpModifier -= infAmt;
+		int infAmt = effector.curStatus.Find(x => x.info.Id == ((int)AnomalyIndex.Infect) + 1).stacks;
+		effector.hpModifier -= infAmt;
 	}
 
 	public void OnInfUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.myDet.hpModifier -= amt;
+		effector.hpModifier -= amt;
 	}
 
 	public void OnInfDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
