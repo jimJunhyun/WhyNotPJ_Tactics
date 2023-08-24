@@ -106,6 +106,8 @@ public class UnitBasic : MonoBehaviour
 
 	public List<InflictedAnomaly> curStatus = new List<InflictedAnomaly>();
 
+
+
 	[HideInInspector]
 	public bool immunity = false;
 	bool movable = true;
@@ -129,38 +131,6 @@ public class UnitBasic : MonoBehaviour
 	{
 		UpdateHandler.instance.allUnits.Add(this);
 		UpdateHandler.instance.fieldUpdateAct += OnUpdateAct;
-	}
-
-	//부활 이후의 위치 변경이 적용되기 전에 타격이 들어가서 죽어버림.
-	//그래서 무적 시간을 적용함.
-	//부활 연출 등에도 사용할 수 있을 듯.
-
-	private void OnUpdateAct()
-	{
-
-		for (int i = 0; i < ranges.Count; i++)
-		{
-			ranges[i].totalMod = ranges[i].atkModifier + atkModifier;
-			if (CheckCell(ranges[i], out UnitBasic foundUnit))
-			{
-				if (!rangeAttackingPair.ContainsKey(ranges[i]))
-				{
-					rangeAttackingPair.Add(ranges[i], foundUnit);
-					foundUnit.Damage(ranges[i]);
-				}
-			}
-			else
-			{
-				if (rangeAttackingPair.ContainsKey(ranges[i]))
-				{
-					rangeAttackingPair[ranges[i]].UnDamage(ranges[i]);
-					rangeAttackingPair.Remove(ranges[i]);
-					
-				}
-			}
-			
-		}
-		//Debug.Log(myBase.name + " : " + myBase.atkModifier.val);
 	}
 
 	void Update()
@@ -232,6 +202,36 @@ public class UnitBasic : MonoBehaviour
 				}
 			}
 		}
+	}
+
+	#region Fundamental
+
+	private void OnUpdateAct()
+	{
+
+		for (int i = 0; i < ranges.Count; i++)
+		{
+			ranges[i].totalMod = ranges[i].atkModifier + atkModifier;
+			if (CheckCell(ranges[i], out UnitBasic foundUnit))
+			{
+				if (!rangeAttackingPair.ContainsKey(ranges[i]))
+				{
+					rangeAttackingPair.Add(ranges[i], foundUnit);
+					foundUnit.Damage(ranges[i]);
+				}
+			}
+			else
+			{
+				if (rangeAttackingPair.ContainsKey(ranges[i]))
+				{
+					rangeAttackingPair[ranges[i]].UnDamage(ranges[i]);
+					rangeAttackingPair.Remove(ranges[i]);
+
+				}
+			}
+
+		}
+		//Debug.Log(myBase.name + " : " + myBase.atkModifier.val);
 	}
 
 	bool CheckCell(AttackRange rng, out UnitBasic mover)
@@ -312,6 +312,8 @@ public class UnitBasic : MonoBehaviour
 		return false;
 	}
 
+	#endregion
+
 	public virtual void Damage(AttackRange rng, float mult = 1)
 	{
 		rng.totalModMult = mult;
@@ -327,6 +329,7 @@ public class UnitBasic : MonoBehaviour
 			sum += Mathf.Max((int)(attackedBy[i].totalAtk) - defModifier, 0);
 		}
 		CurHp = hp + hpModifier - sum;
+
 	}
 
 	public virtual void UnDamage(AttackRange rng)
@@ -370,6 +373,11 @@ public class UnitBasic : MonoBehaviour
 		}
 	}
 
+
+
+
+	#region Locals
+
 	public void DestActs()
 	{
 		//Debug.Log("Dest Ref " + name);
@@ -391,12 +399,12 @@ public class UnitBasic : MonoBehaviour
 		}
 	}
 
-	public virtual void Immobilize()
+	public void Immobilize()
 	{
 		movable = false;
 	}
 
-	public virtual void Mobilize()
+	public void Mobilize()
 	{
 		movable = true;
 	}
@@ -407,4 +415,5 @@ public class UnitBasic : MonoBehaviour
 		yield return new WaitForSeconds(sec);
 		immunity = false;
 	}
+	#endregion
 }

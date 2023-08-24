@@ -280,7 +280,7 @@ MonoBehaviour:
     atkModifier: 0
     totalMod: 0
     totalModMult: 1
-    anomaly: 05000000
+    anomaly: 06000000
     anomalyAmount: 01000000
     targetSide: 3
     owner: {fileID: 0}
@@ -548,7 +548,7 @@ MonoBehaviour:
   moveGap: 1.5
   moveDist: 0.5
   rayDist: 0.25
-  hp: 5
+  hp: 6
   controlable: 0
   attackedBy: []
   immunity: 0

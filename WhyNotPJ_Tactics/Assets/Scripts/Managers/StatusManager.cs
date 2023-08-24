@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class StatusManager : MonoBehaviour
@@ -41,6 +42,10 @@ public class StatusManager : MonoBehaviour
 		allAnomalies.allAnomalies[6].onActivated += OnInfActivate;
 		allAnomalies.allAnomalies[6].onUpdated += OnInfUpdate;
 		allAnomalies.allAnomalies[6].onDisactivated += OnInfDisactivate;
+
+		allAnomalies.allAnomalies[7].onActivated += OnLinkActivate;
+		allAnomalies.allAnomalies[7].onUpdated += OnLinkUpdate;
+		allAnomalies.allAnomalies[7].onDisactivated += OnLinkDisactivate;
 		//reflection을 사용하기보다 그냥 손수 하나하나 더하기로 결정.
 		//실행속도를 높이기 위함.
 
@@ -158,6 +163,22 @@ public class StatusManager : MonoBehaviour
 	}
 
 	public void OnInfDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
+	{
+	}
+
+	public void OnLinkActivate(UnitBasic effector, UnitBasic inflicter, int amt)
+	{
+		effector.attackedBy.AddRange(inflicter.attackedBy.Except(effector.attackedBy));
+		inflicter.attackedBy.AddRange(effector.attackedBy.Except(effector.attackedBy));
+	}
+
+	public void OnLinkUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
+	{
+		effector.attackedBy.AddRange(inflicter.attackedBy.Except(effector.attackedBy));
+		inflicter.attackedBy.AddRange(effector.attackedBy.Except(effector.attackedBy));
+	}
+
+	public void OnLinkDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
 	}
 }
