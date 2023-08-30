@@ -168,17 +168,29 @@ public class StatusManager : MonoBehaviour
 
 	public void OnLinkActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
+		Debug.Log(effector.attackedBy.Count + " & " + inflicter.attackedBy.Count);
 		effector.attackedBy.AddRange(inflicter.attackedBy.Except(effector.attackedBy));
-		inflicter.attackedBy.AddRange(effector.attackedBy.Except(effector.attackedBy));
+		inflicter.attackedBy.AddRange(effector.attackedBy.Except(inflicter.attackedBy));
 	}
 
 	public void OnLinkUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.attackedBy.AddRange(inflicter.attackedBy.Except(effector.attackedBy));
-		inflicter.attackedBy.AddRange(effector.attackedBy.Except(effector.attackedBy));
+		if(amt < 0)
+		{
+			effector.attackedBy = effector.attackedBy.Except(inflicter.attackedBy).ToList();
+			inflicter.attackedBy = inflicter.attackedBy.Except(effector.attackedBy).ToList();
+		}
+		else
+		{
+			effector.attackedBy.AddRange(inflicter.attackedBy.Except(effector.attackedBy));
+			inflicter.attackedBy.AddRange(effector.attackedBy.Except(inflicter.attackedBy));
+		}
+		
 	}
 
 	public void OnLinkDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
+		effector.attackedBy = effector.attackedBy.Except(inflicter.attackedBy).ToList();
+		inflicter.attackedBy = inflicter.attackedBy.Except(effector.attackedBy).ToList();
 	}
 }

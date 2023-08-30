@@ -5,7 +5,7 @@ using System;
 
 public enum Side
 {
-	Friendly = 1,
+	Friendly= 1,
 	Hostile = 2,
 	Neutral = 4,
 
@@ -106,6 +106,7 @@ public class UnitBasic : MonoBehaviour
 
 	public List<InflictedAnomaly> curStatus = new List<InflictedAnomaly>();
 
+	bool moved = false;
 
 
 	[HideInInspector]
@@ -144,7 +145,7 @@ public class UnitBasic : MonoBehaviour
 			if (movable)
 			{
 				RaycastHit2D hit;
-				bool moved = false;
+				
 				if (Input.GetAxisRaw("Horizontal") > 0)
 				{
 					if (!Physics2D.Raycast(transform.position + Vector3.right * (transform.localScale.x / 1.8f), Vector3.right, rayDist))
@@ -196,11 +197,18 @@ public class UnitBasic : MonoBehaviour
 					}
 				}
 
-				if (moved)
-				{
-					UpdateHandler.instance.fieldUpdateAct.Invoke();
-				}
+				
 			}
+		}
+	}
+
+	private void LateUpdate()
+	{
+		if (moved)
+		{
+			moved = false;
+			Debug.Log(transform.name + " at : " + transform.position);
+			UpdateHandler.instance.fieldUpdateAct.Invoke();
 		}
 	}
 
@@ -208,14 +216,17 @@ public class UnitBasic : MonoBehaviour
 
 	private void OnUpdateAct()
 	{
-
+		
 		for (int i = 0; i < ranges.Count; i++)
 		{
+			//Debug.Log(transform.name + " Range No." + i);
 			ranges[i].totalMod = ranges[i].atkModifier + atkModifier;
 			if (CheckCell(ranges[i], out UnitBasic foundUnit))
 			{
+				
 				if (!rangeAttackingPair.ContainsKey(ranges[i]))
 				{
+					//Debug.Log(foundUnit.name + " got hit");
 					rangeAttackingPair.Add(ranges[i], foundUnit);
 					foundUnit.Damage(ranges[i]);
 				}
@@ -238,8 +249,8 @@ public class UnitBasic : MonoBehaviour
 	{
 		mover = null;
 		Vector3 dest = transform.position + (transform.right * 0.5f * rng.xDistance) + (transform.up * 0.5f * rng.yDistance);
-		Collider2D c = Physics2D.OverlapBox(dest, Vector2.one * 0.3f, 0, rng.TargetSide);
-		if(c != null)
+		Collider2D c = Physics2D.OverlapBox(dest, Vector2.one * 0.4f, 0, rng.TargetSide);
+		if(c)
 		{
 			mover = c.GetComponent<UnitBasic>();
 			if (mover != null)
@@ -395,7 +406,7 @@ public class UnitBasic : MonoBehaviour
 		for (int i = 0; i < ranges.Count; i++)
 		{
 			Vector3 dest = transform.position + (transform.right * 0.5f * ranges[i].xDistance) + (transform.up * 0.5f * ranges[i].yDistance);
-			Gizmos.DrawWireCube(dest, Vector3.one * 0.3f);
+			Gizmos.DrawWireCube(dest, Vector3.one * 0.4f);
 		}
 	}
 
