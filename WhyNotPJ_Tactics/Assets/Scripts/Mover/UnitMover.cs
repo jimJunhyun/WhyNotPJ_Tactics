@@ -70,6 +70,9 @@ public class UnitMover : MonoBehaviour
 	bool movable = true;
 	float prevMove;
 
+	[SerializeField]
+	public List<Vector3Int> pathes;
+
 	private void Awake()
 	{
 		prevMove = 0;
@@ -77,6 +80,8 @@ public class UnitMover : MonoBehaviour
 
 	private void Update()
 	{
+		Move();
+
 		if (controlable) //Temp
 		{
 			if (Time.time - prevMove >= moveGap)
@@ -85,50 +90,50 @@ public class UnitMover : MonoBehaviour
 			}
 			if (movable)
 			{
-				RaycastHit2D hit;
-				if (Input.GetAxisRaw("Horizontal") > 0)
-				{
-					if (!Physics2D.Raycast(transform.position + Vector3.right * (transform.localScale.x / 1.8f), Vector3.right, rayDist))
-					{
-						transform.eulerAngles = new Vector3(0, 0, 270);
+				//RaycastHit2D hit;
+				//if (Input.GetAxisRaw("Horizontal") > 0)
+				//{
+				//	if (!Physics2D.Raycast(transform.position + Vector3.right * (transform.localScale.x / 1.8f), Vector3.right, rayDist))
+				//	{
+				//		transform.eulerAngles = new Vector3(0, 0, 270);
 						
-						transform.Translate(new Vector3(0, moveDist), Space.Self);
-						movable = false;
-						prevMove = Time.time;
-					}
+				//		transform.Translate(new Vector3(0, moveDist), Space.Self);
+				//		movable = false;
+				//		prevMove = Time.time;
+				//	}
 
-				}
-				else if (Input.GetAxisRaw("Horizontal") < 0)
-				{
-					if (!(hit = Physics2D.Raycast(transform.position - Vector3.right * (transform.localScale.x / 1.8f), Vector3.left, rayDist)))
-					{
-						transform.eulerAngles = new Vector3(0, 0, 90);
+				//}
+				//else if (Input.GetAxisRaw("Horizontal") < 0)
+				//{
+				//	if (!(hit = Physics2D.Raycast(transform.position - Vector3.right * (transform.localScale.x / 1.8f), Vector3.left, rayDist)))
+				//	{
+				//		transform.eulerAngles = new Vector3(0, 0, 90);
 						
-						transform.Translate(new Vector3(0, moveDist), Space.Self);
-						movable = false;
-						prevMove = Time.time;
-					}
-				}
-				else if (Input.GetAxisRaw("Vertical") > 0)
-				{
-					if (!Physics2D.Raycast(transform.position + Vector3.up * (transform.localScale.y / 1.8f), Vector3.up, rayDist))
-					{
-						transform.eulerAngles = new Vector3(0, 0, 0);
-						transform.Translate(new Vector3(0, moveDist), Space.Self);
-						movable = false;
-						prevMove = Time.time;
-					}
-				}
-				else if (Input.GetAxisRaw("Vertical") < 0)
-				{
-					if (!Physics2D.Raycast(transform.position - Vector3.up * (transform.localScale.y / 1.8f), Vector3.down, rayDist))
-					{
-						transform.eulerAngles = new Vector3(0, 0, 180);
-						transform.Translate(new Vector3(0, moveDist), Space.Self);
-						movable = false;
-						prevMove = Time.time;
-					}
-				}
+				//		transform.Translate(new Vector3(0, moveDist), Space.Self);
+				//		movable = false;
+				//		prevMove = Time.time;
+				//	}
+				//}
+				//else if (Input.GetAxisRaw("Vertical") > 0)
+				//{
+				//	if (!Physics2D.Raycast(transform.position + Vector3.up * (transform.localScale.y / 1.8f), Vector3.up, rayDist))
+				//	{
+				//		transform.eulerAngles = new Vector3(0, 0, 0);
+				//		transform.Translate(new Vector3(0, moveDist), Space.Self);
+				//		movable = false;
+				//		prevMove = Time.time;
+				//	}
+				//}
+				//else if (Input.GetAxisRaw("Vertical") < 0)
+				//{
+				//	if (!Physics2D.Raycast(transform.position - Vector3.up * (transform.localScale.y / 1.8f), Vector3.down, rayDist))
+				//	{
+				//		transform.eulerAngles = new Vector3(0, 0, 180);
+				//		transform.Translate(new Vector3(0, moveDist), Space.Self);
+				//		movable = false;
+				//		prevMove = Time.time;
+				//	}
+				//}
 			}
 		}
 	}
@@ -140,6 +145,38 @@ public class UnitMover : MonoBehaviour
 			Destroy(gameObject);
 		}
 	}
+
+	#region Move
+	public void SetPath(List<Vector3Int> path)
+	{
+		pathes = new(path);
+	}
+
+	private void Move()
+	{
+		if (pathes.Count > 0)
+		{
+			if (Time.time - prevMove >= moveGap)
+			{
+				movable = true;
+			}
+
+			if (movable)
+			{
+				Vector3 pos = pathes[0];
+				Vector3 dir = pos - transform.position;
+				float angle = Vector2.SignedAngle(Vector2.up, dir);
+				pathes.RemoveAt(0);
+
+				transform.position = pos;
+				transform.rotation = Quaternion.Euler(0, 0, angle);
+
+				movable = false;
+				prevMove = Time.time;
+			}
+		}
+	}
+	#endregion
 
 	public void Immobilize()
 	{
