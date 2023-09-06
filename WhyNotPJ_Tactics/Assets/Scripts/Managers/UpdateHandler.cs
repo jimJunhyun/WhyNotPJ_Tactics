@@ -68,7 +68,7 @@ public class UpdateHandler : MonoBehaviour
 	{
 		yield return null;
 		Debug.Log("ATKRANGECHECK");
-		fieldUpdateAct?.Invoke();
+		fieldUpdateAct.Invoke();
 		requestCalls = 0;
 	}
 
