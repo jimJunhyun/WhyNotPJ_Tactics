@@ -26,9 +26,11 @@ public class UpdateHandler : MonoBehaviour
 
 	public List<UnitBasic> allUnits = new List<UnitBasic>();
 
-	public Action fieldUpdateAct;
+	Action fieldUpdateAct;
 
 	Coroutine c;
+
+	int requestCalls = 1;
 
 	private void Awake()
 	{
@@ -56,6 +58,18 @@ public class UpdateHandler : MonoBehaviour
 				c = StartCoroutine(DelayDie(4, InvokeDests));
 			}
 		}
+		if(requestCalls > 0)
+		{
+			StartCoroutine(DelInvoker());
+		}
+	}
+
+	IEnumerator DelInvoker()
+	{
+		yield return null;
+		Debug.Log("ATKRANGECHECK");
+		fieldUpdateAct.Invoke();
+		requestCalls = 0;
 	}
 
 	void InvokeActs()
@@ -89,6 +103,20 @@ public class UpdateHandler : MonoBehaviour
 				
 		destTargets.Clear();
 		StopAllCoroutines();
+	}
+
+	public void AddFieldUpdateActs(Action act)
+	{
+		fieldUpdateAct += act;
+	}
+	public void RemoveFieldUpdateActs(Action act)
+	{
+		fieldUpdateAct -= act;
+	}
+
+	public void RequestFUpdate()
+	{
+		requestCalls += 1;
 	}
 
     public void AddUpdater(Action<AttackRange> act, AttackRange rng)

@@ -131,7 +131,8 @@ public class UnitBasic : MonoBehaviour
 	private void Start()
 	{
 		UpdateHandler.instance.allUnits.Add(this);
-		UpdateHandler.instance.fieldUpdateAct += OnUpdateAct;
+
+		UpdateHandler.instance.AddFieldUpdateActs(OnUpdateAct);
 	}
 
 	void Update()
@@ -200,15 +201,11 @@ public class UnitBasic : MonoBehaviour
 				
 			}
 		}
-	}
-
-	private void LateUpdate()
-	{
 		if (moved)
 		{
 			moved = false;
-			Debug.Log(transform.name + " at : " + transform.position);
-			UpdateHandler.instance.fieldUpdateAct.Invoke();
+			Debug.Log("MOVED");
+			UpdateHandler.instance.RequestFUpdate();
 		}
 	}
 
@@ -219,14 +216,14 @@ public class UnitBasic : MonoBehaviour
 		
 		for (int i = 0; i < ranges.Count; i++)
 		{
-			//Debug.Log(transform.name + " Range No." + i);
+			Debug.Log(transform.name + " Range No." + i);
 			ranges[i].totalMod = ranges[i].atkModifier + atkModifier;
 			if (CheckCell(ranges[i], out UnitBasic foundUnit))
 			{
 				
 				if (!rangeAttackingPair.ContainsKey(ranges[i]))
 				{
-					//Debug.Log(foundUnit.name + " got hit");
+					Debug.Log(foundUnit.name + " got hit");
 					rangeAttackingPair.Add(ranges[i], foundUnit);
 					foundUnit.Damage(ranges[i]);
 				}
@@ -398,7 +395,7 @@ public class UnitBasic : MonoBehaviour
 		}
 		rangeAttackingPair.Clear();
 
-		UpdateHandler.instance.fieldUpdateAct -= OnUpdateAct;
+		UpdateHandler.instance.RemoveFieldUpdateActs(OnUpdateAct);
 	}
 
 	public void OnDrawGizmos()
