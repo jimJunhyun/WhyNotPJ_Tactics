@@ -118,6 +118,11 @@ public class UnitBasic : MonoBehaviour
 	public List<AttackRange> ranges;
 	Dictionary<AttackRange, UnitBasic> rangeAttackingPair = new Dictionary<AttackRange, UnitBasic>();
 
+
+	public bool isMoving = false;
+	[SerializeField]
+	public List<Vector3Int> pathes;
+
 	private void Awake()
 	{
 		prevMove = 0;
@@ -137,70 +142,72 @@ public class UnitBasic : MonoBehaviour
 
 	void Update()
 	{
-		if (controlable) //Temp
-		{
-			if (Time.time - prevMove >= moveGap)
-			{
-				movable = true;
-			}
-			if (movable)
-			{
-				RaycastHit2D hit;
+		Move();
+
+		//if (controlable) //Temp
+		//{
+		//	if (Time.time - prevMove >= moveGap)
+		//	{
+		//		movable = true;
+		//	}
+		//	if (movable)
+		//	{
+		//		RaycastHit2D hit;
 				
-				if (Input.GetAxisRaw("Horizontal") > 0)
-				{
-					if (!Physics2D.Raycast(transform.position + Vector3.right * (transform.localScale.x / 1.8f), Vector3.right, rayDist))
-					{
-						moved = true;
-						transform.eulerAngles = new Vector3(0, 0, 270);
+		//		if (Input.GetAxisRaw("Horizontal") > 0)
+		//		{
+		//			if (!Physics2D.Raycast(transform.position + Vector3.right * (transform.localScale.x / 1.8f), Vector3.right, rayDist))
+		//			{
+		//				moved = true;
+		//				transform.eulerAngles = new Vector3(0, 0, 270);
 
-						transform.Translate(new Vector3(0, moveDist), Space.Self);
-						movable = false;
-						prevMove = Time.time;
-					}
+		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
+		//				movable = false;
+		//				prevMove = Time.time;
+		//			}
 
-				}
-				else if (Input.GetAxisRaw("Horizontal") < 0)
-				{
-					if (!(hit = Physics2D.Raycast(transform.position - Vector3.right * (transform.localScale.x / 1.8f), Vector3.left, rayDist)))
-					{
+		//		}
+		//		else if (Input.GetAxisRaw("Horizontal") < 0)
+		//		{
+		//			if (!(hit = Physics2D.Raycast(transform.position - Vector3.right * (transform.localScale.x / 1.8f), Vector3.left, rayDist)))
+		//			{
 
-						moved = true;
-						transform.eulerAngles = new Vector3(0, 0, 90);
+		//				moved = true;
+		//				transform.eulerAngles = new Vector3(0, 0, 90);
 
-						transform.Translate(new Vector3(0, moveDist), Space.Self);
-						movable = false;
-						prevMove = Time.time;
-					}
-				}
-				else if (Input.GetAxisRaw("Vertical") > 0)
-				{
-					if (!(hit = Physics2D.Raycast(transform.position + Vector3.up * (transform.localScale.y / 1.8f), Vector3.up, rayDist)))
-					{
-						moved = true;
-						transform.eulerAngles = new Vector3(0, 0, 0);
-						transform.Translate(new Vector3(0, moveDist), Space.Self);
-						movable = false;
-						prevMove = Time.time;
-					}
-				}
-				else if (Input.GetAxisRaw("Vertical") < 0)
-				{
+		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
+		//				movable = false;
+		//				prevMove = Time.time;
+		//			}
+		//		}
+		//		else if (Input.GetAxisRaw("Vertical") > 0)
+		//		{
+		//			if (!(hit = Physics2D.Raycast(transform.position + Vector3.up * (transform.localScale.y / 1.8f), Vector3.up, rayDist)))
+		//			{
+		//				moved = true;
+		//				transform.eulerAngles = new Vector3(0, 0, 0);
+		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
+		//				movable = false;
+		//				prevMove = Time.time;
+		//			}
+		//		}
+		//		else if (Input.GetAxisRaw("Vertical") < 0)
+		//		{
 
-					if (!(hit = Physics2D.Raycast(transform.position - Vector3.up * (transform.localScale.y / 1.8f), Vector3.down, rayDist)))
-					{
+		//			if (!(hit = Physics2D.Raycast(transform.position - Vector3.up * (transform.localScale.y / 1.8f), Vector3.down, rayDist)))
+		//			{
 
-						moved = true;
-						transform.eulerAngles = new Vector3(0, 0, 180);
-						transform.Translate(new Vector3(0, moveDist), Space.Self);
-						movable = false;
-						prevMove = Time.time;
-					}
-				}
+		//				moved = true;
+		//				transform.eulerAngles = new Vector3(0, 0, 180);
+		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
+		//				movable = false;
+		//				prevMove = Time.time;
+		//			}
+		//		}
 
 				
-			}
-		}
+		//	}
+		//}
 		if (moved)
 		{
 			moved = false;
@@ -208,6 +215,44 @@ public class UnitBasic : MonoBehaviour
 			UpdateHandler.instance.RequestFUpdate();
 		}
 	}
+
+	#region Move
+	public void SetPath(List<Vector3Int> path)
+	{
+		pathes = new(path);
+	}
+
+	private void Move()
+	{
+		if (pathes.Count > 0)
+		{
+			isMoving = true;
+			if (Time.time - prevMove >= moveGap)
+			{
+				movable = true;
+			}
+
+			if (movable)
+			{
+				Vector3 pos = pathes[0];
+				Vector3 dir = pos - transform.position;
+				float angle = Vector2.SignedAngle(Vector2.up, dir);
+				pathes.RemoveAt(0);
+
+				transform.position = pos;
+				transform.rotation = Quaternion.Euler(0, 0, angle);
+
+				movable = false;
+				prevMove = Time.time;
+				moved = true;
+			}
+		}
+		else if (pathes.Count == 0 && isMoving)
+		{
+			isMoving = false;
+		}
+	}
+	#endregion
 
 	#region Fundamental
 

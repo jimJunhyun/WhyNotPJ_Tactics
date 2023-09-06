@@ -68,7 +68,7 @@ public class UpdateHandler : MonoBehaviour
 	{
 		yield return null;
 		Debug.Log("ATKRANGECHECK");
-		fieldUpdateAct.Invoke();
+		fieldUpdateAct?.Invoke();
 		requestCalls = 0;
 	}
 
@@ -96,7 +96,7 @@ public class UpdateHandler : MonoBehaviour
 			if (destTargets[i] != null)
 			{
 				allUnits.Remove(destTargets[i]);
-				Destroy(destTargets[i].gameObject);
+				//Destroy(destTargets[i].gameObject);
 			}
 
 		}
