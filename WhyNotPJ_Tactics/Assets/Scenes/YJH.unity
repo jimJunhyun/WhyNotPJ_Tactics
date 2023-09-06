@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 473673712}
   - component: {fileID: 473673713}
   - component: {fileID: 473673714}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WarCart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -203,7 +203,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 473673709}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -2, z: 10}
+  m_LocalPosition: {x: 0, y: 0, z: 10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -225,10 +225,9 @@ MonoBehaviour:
   moveGap: 0.6
   moveDist: 1
   rayDist: 0.5
-  hp: 3
+  hp: 4
   controlable: 1
   attackedBy: []
-  pathes: []
 --- !u!61 &473673713
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -270,10 +269,14 @@ MonoBehaviour:
   ranges:
   - xDistance: 0
     yDistance: 1
-    atk: 3
+    atk: 4
     atkModifier: 0
-    anomaly: 2
-    anomalyAmount: 2
+    totalMod: 0
+    totalModMult: 1
+    anomaly: 
+    anomalyAmount: 
+    targetSide: 3
+    owner: {fileID: 0}
 --- !u!1 &1284204937
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,7 +294,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1284204938
 Light:
   m_ObjectHideFlags: 0
@@ -402,7 +405,7 @@ GameObject:
   - component: {fileID: 1343471185}
   - component: {fileID: 1343471184}
   - component: {fileID: 1343471188}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Immortal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -450,10 +453,9 @@ MonoBehaviour:
   moveGap: 1.5
   moveDist: 1
   rayDist: 0.5
-  hp: 2
+  hp: 5
   controlable: 0
   attackedBy: []
-  pathes: []
 --- !u!212 &1343471186
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -514,7 +516,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1343471183}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3, z: 10}
+  m_LocalPosition: {x: 0, y: 2, z: 10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -538,50 +540,82 @@ MonoBehaviour:
     yDistance: 0
     atk: 2
     atkModifier: 0
-    anomaly: -1
-    anomalyAmount: 0
+    totalMod: 0
+    totalModMult: 1
+    anomaly: 
+    anomalyAmount: 
+    targetSide: 3
+    owner: {fileID: 0}
   - xDistance: -1
     yDistance: 0
     atk: 2
     atkModifier: 0
-    anomaly: -1
-    anomalyAmount: 0
+    totalMod: 0
+    totalModMult: 1
+    anomaly: 
+    anomalyAmount: 
+    targetSide: 3
+    owner: {fileID: 0}
   - xDistance: 0
     yDistance: 1
     atk: 2
     atkModifier: 0
-    anomaly: -1
-    anomalyAmount: 0
+    totalMod: 0
+    totalModMult: 1
+    anomaly: 
+    anomalyAmount: 
+    targetSide: 3
+    owner: {fileID: 0}
   - xDistance: 0
     yDistance: -1
     atk: 2
     atkModifier: 0
-    anomaly: -1
-    anomalyAmount: 0
+    totalMod: 0
+    totalModMult: 1
+    anomaly: 
+    anomalyAmount: 
+    targetSide: 3
+    owner: {fileID: 0}
   - xDistance: 2
     yDistance: 1
     atk: 1
     atkModifier: 0
-    anomaly: -1
-    anomalyAmount: 0
+    totalMod: 0
+    totalModMult: 1
+    anomaly: 
+    anomalyAmount: 
+    targetSide: 3
+    owner: {fileID: 0}
   - xDistance: -2
     yDistance: 1
     atk: 1
     atkModifier: 0
-    anomaly: -1
-    anomalyAmount: 0
+    totalMod: 0
+    totalModMult: 1
+    anomaly: 
+    anomalyAmount: 
+    targetSide: 3
+    owner: {fileID: 0}
   - xDistance: -2
     yDistance: -1
     atk: 1
     atkModifier: 0
-    anomaly: -1
-    anomalyAmount: 0
+    totalMod: 0
+    totalModMult: 1
+    anomaly: 
+    anomalyAmount: 
+    targetSide: 3
+    owner: {fileID: 0}
   - xDistance: 2
     yDistance: -1
     atk: 1
     atkModifier: 0
-    anomaly: -1
-    anomalyAmount: 0
+    totalMod: 0
+    totalModMult: 1
+    anomaly: 
+    anomalyAmount: 
+    targetSide: 3
+    owner: {fileID: 0}
 --- !u!1 &1458662772
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,7 +748,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allAnomalies: {fileID: 11400000, guid: b9c19dd654a837046b6947f41c1f006c, type: 2}
---- !u!1 &2091036961
+--- !u!1 &1977000382
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -722,38 +756,36 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2091036963}
-  - component: {fileID: 2091036962}
+  - component: {fileID: 1977000384}
+  - component: {fileID: 1977000383}
   m_Layer: 0
-  m_Name: Controller
+  m_Name: Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2091036962
+--- !u!114 &1977000383
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2091036961}
+  m_GameObject: {fileID: 1977000382}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23570ad57f5f1bc40915a7c84810e148, type: 3}
+  m_Script: {fileID: 11500000, guid: e83bbe02e85945544b9a65ac23774a24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  pathes: []
---- !u!4 &2091036963
+  destTargets: []
+  allUnits: []
+--- !u!4 &1977000384
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2091036961}
+  m_GameObject: {fileID: 1977000382}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
