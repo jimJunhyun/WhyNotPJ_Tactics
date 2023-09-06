@@ -46,7 +46,7 @@ public class UnitPathMaker : MonoBehaviour
 
 			if (hit.collider.TryGetComponent(out selectedMover))
 			{
-				if (!selectedMover.controlable)
+				if (!selectedMover.controlable || selectedMover.isMoving == true)
 				{
 					selectedMover = null;
 					return;
@@ -105,6 +105,7 @@ public class UnitPathMaker : MonoBehaviour
 
 		if (nextPos != pathes[0] && Physics2D.CircleCast((Vector3)nextPos, 0.2f, Vector2.zero, 20f, obstacleLayer))
 		{
+			print("장애물 있음");
 			moveable = pathes.Count;
 		}
 

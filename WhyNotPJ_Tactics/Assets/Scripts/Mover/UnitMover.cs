@@ -68,6 +68,7 @@ public class UnitMover : MonoBehaviour
 	List<int> atkScopes = new List<int>();
 
 	bool movable = true;
+	public bool isMoving = false;
 	float prevMove;
 
 	[SerializeField]
@@ -149,13 +150,14 @@ public class UnitMover : MonoBehaviour
 	#region Move
 	public void SetPath(List<Vector3Int> path)
 	{
-		pathes = new(path);
+		pathes = new (path);
 	}
 
 	private void Move()
 	{
 		if (pathes.Count > 0)
 		{
+			isMoving = true;
 			if (Time.time - prevMove >= moveGap)
 			{
 				movable = true;
@@ -174,6 +176,10 @@ public class UnitMover : MonoBehaviour
 				movable = false;
 				prevMove = Time.time;
 			}
+		}
+		else if (pathes.Count == 0 && isMoving)
+		{
+			isMoving = false;
 		}
 	}
 	#endregion
