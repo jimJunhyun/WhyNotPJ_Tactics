@@ -32,9 +32,9 @@ MonoBehaviour:
     name: "\uBD80\uD65C"
     isBuff: 1
     minActivate: 1
-    maxActivate: 2
+    maxActivate: 1
   - Id: 5
-    name: "\uBCF4\uD638"
+    name: "\uCDA9\uC804"
     isBuff: 1
     minActivate: 1
     maxActivate: 2
