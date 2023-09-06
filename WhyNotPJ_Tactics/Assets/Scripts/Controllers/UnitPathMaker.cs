@@ -11,7 +11,7 @@ public class UnitPathMaker : MonoBehaviour
 	private Vector3Int curPos;
 	private float enter;
 
-	private UnitMover selectedMover;
+	private UnitBasic selectedMover;
 
 	[Header("#Setting Values")]
 	[SerializeField]
@@ -46,11 +46,11 @@ public class UnitPathMaker : MonoBehaviour
 
 			if (hit.collider.TryGetComponent(out selectedMover))
 			{
-				if (!selectedMover.controlable || selectedMover.isMoving == true)
-				{
-					selectedMover = null;
-					return;
-				}
+				//if (!selectedMover.controlable || selectedMover.isMoving == true)
+				//{
+				//	selectedMover = null;
+				//	return;
+				//}
 			}
 
 			if (board.Raycast(ray, out enter))
@@ -71,7 +71,7 @@ public class UnitPathMaker : MonoBehaviour
 			if (selectedMover is not null && moveable == -1)
 			{
 				pathes.RemoveAt(0);
-				selectedMover.SetPath(pathes);
+				//selectedMover.SetPath(pathes);
 			}
 
 			moveable = -1;
