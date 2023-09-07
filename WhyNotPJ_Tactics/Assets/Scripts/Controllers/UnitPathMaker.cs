@@ -117,9 +117,9 @@ public class UnitPathMaker : MonoBehaviour
 			int move = Mathf.RoundToInt(Mathf.Abs(lastPos.x - nextPos.x) + Mathf.Abs(lastPos.y - nextPos.y)) * 2;
 			float x = 0, y = 0, xAdd = nextPos.x < lastPos.x ? -0.5f : 0.5f, yAdd = nextPos.y < lastPos.y ? -0.5f : 0.5f;
 
-			for (int i = 1; i <= move; i++) // �� �����ӿ� �� ĭ �̻��� �̵����� �� �� ���� ����ĭ�� �پ�Ѵ� ���� �����ϴ� �ڵ�
+			for (int i = 1; i <= move; i++)
 			{
-				// i % 2 ������ �ϴ� ������ �������� ������׷� �����̰� �ϱ� ���ؼ��̴�.
+				// (i % 2) <- for zigzag
 				if (i % 2 == 1 && (lastPos.x + x) != nextPos.x)
 				{
 					x += xAdd;
