@@ -7,8 +7,8 @@ public class UnitPathMaker : MonoBehaviour
 	private Camera cam;
 	private Plane board;
 
-	private Vector3Int prevPos;
-	private Vector3Int curPos;
+	private Vector3 prevPos;
+	private Vector3 curPos;
 	private float enter;
 
 	private UnitBasic selectedMover;
@@ -19,7 +19,7 @@ public class UnitPathMaker : MonoBehaviour
 
 	[Header("#Others")]
 	[SerializeField]
-	private List<Vector3Int> pathes = new List<Vector3Int>();
+	private List<Vector3> pathes = new List<Vector3>();
 	private bool findPath = false;
 
 	[SerializeField]
@@ -57,7 +57,7 @@ public class UnitPathMaker : MonoBehaviour
 			{
 				findPath = true;
 				Vector3 hitPoint = ray.GetPoint(enter);
-				curPos = Vector3Int.RoundToInt(hitPoint);
+				curPos = new Vector3(Mathf.RoundToInt(hitPoint.x * 2f) / 2f, Mathf.RoundToInt(hitPoint.y * 2f) / 2f, hitPoint.z);
 				prevPos = curPos;
 				pathes.Add(curPos);
 			}
@@ -101,9 +101,11 @@ public class UnitPathMaker : MonoBehaviour
 
 		Vector3 hitPoint = cam.ScreenToWorldPoint(Input.mousePosition); // ray.GetPoint(enter);
 		hitPoint.z = 10;
-		Vector3Int nextPos = Vector3Int.RoundToInt(hitPoint);
+		//Vector3 nextPos = (Vector3)Vector3Int.RoundToInt(hitPoint * 2f) / 2f;
+		Vector3 nextPos = new Vector3(Mathf.RoundToInt(hitPoint.x * 2f) / 2f, Mathf.RoundToInt(hitPoint.y * 2f) / 2f, 10);
+		print(nextPos);
 
-		if (nextPos != pathes[0] && Physics2D.CircleCast((Vector3)nextPos, 0.2f, Vector2.zero, 20f, obstacleLayer))
+		if (nextPos != pathes[0] && Physics2D.CircleCast(nextPos, 0.2f, Vector2.zero, 20f, obstacleLayer))
 		{
 			print("장애물 있음");
 			moveable = pathes.Count;
@@ -111,9 +113,9 @@ public class UnitPathMaker : MonoBehaviour
 
 		if (pathes[pathes.Count - 1].x != nextPos.x || pathes[pathes.Count - 1].y != nextPos.y)
 		{
-			Vector3Int lastPos = curPos;
-			int move = Mathf.Abs(lastPos.x - nextPos.x) + Mathf.Abs(lastPos.y - nextPos.y);
-			int x = 0, y = 0, xAdd = nextPos.x < lastPos.x ? -1 : 1, yAdd = nextPos.y < lastPos.y ? -1 : 1;
+			Vector3 lastPos = curPos;
+			int move = Mathf.RoundToInt(Mathf.Abs(lastPos.x - nextPos.x) + Mathf.Abs(lastPos.y - nextPos.y)) * 2;
+			float x = 0, y = 0, xAdd = nextPos.x < lastPos.x ? -0.5f : 0.5f, yAdd = nextPos.y < lastPos.y ? -0.5f : 0.5f;
 
 			for (int i = 1; i <= move; i++) // 한 프레임에 두 칸 이상을 이동했을 때 한 번에 여러칸을 뛰어넘는 것을 방지하는 코드
 			{
@@ -135,14 +137,14 @@ public class UnitPathMaker : MonoBehaviour
 					y += yAdd;
 				}
 
-				NextPath(lastPos + new Vector3Int(x, y, 0));
+				NextPath(lastPos + new Vector3(x, y, 0));
 			}
 		}
 
 		NextPath(nextPos);
 	}
 
-	private void NextPath(Vector3Int nextPos)
+	private void NextPath(Vector3 nextPos)
 	{
 		if (pathes.Count > 1 && nextPos.Equals(pathes[pathes.Count - 2]))
 		{
