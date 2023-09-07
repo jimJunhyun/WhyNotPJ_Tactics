@@ -247,7 +247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f4f2333f32101c47aa621fffe652dbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveGap: 0
+  moveGap: 0.25
   moveDist: 1
   rayDist: 0.5
   hp: 0
@@ -347,11 +347,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f4f2333f32101c47aa621fffe652dbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveGap: 0
+  moveGap: 0.25
   moveDist: 1
   rayDist: 0.5
   hp: 0
-  controlable: 0
+  controlable: 1
   attackedBy: []
   immunity: 0
   ranges:

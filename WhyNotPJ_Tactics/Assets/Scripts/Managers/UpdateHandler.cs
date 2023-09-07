@@ -67,8 +67,7 @@ public class UpdateHandler : MonoBehaviour
 	IEnumerator DelInvoker()
 	{
 		yield return null;
-		Debug.Log("ATKRANGECHECK");
-		fieldUpdateAct.Invoke();
+		fieldUpdateAct?.Invoke();
 		requestCalls = 0;
 	}
 

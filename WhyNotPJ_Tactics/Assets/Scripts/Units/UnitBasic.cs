@@ -121,7 +121,7 @@ public class UnitBasic : MonoBehaviour
 
 	public bool isMoving = false;
 	[SerializeField]
-	public List<Vector3Int> pathes;
+	public List<Vector3> pathes;
 
 	private void Awake()
 	{
@@ -136,7 +136,6 @@ public class UnitBasic : MonoBehaviour
 	private void Start()
 	{
 		UpdateHandler.instance.allUnits.Add(this);
-
 		UpdateHandler.instance.AddFieldUpdateActs(OnUpdateAct);
 	}
 
@@ -217,7 +216,7 @@ public class UnitBasic : MonoBehaviour
 	}
 
 	#region Move
-	public void SetPath(List<Vector3Int> path)
+	public void SetPath(List<Vector3> path)
 	{
 		pathes = new(path);
 	}
