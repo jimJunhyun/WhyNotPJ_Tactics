@@ -9,7 +9,7 @@ public enum Side
 	Hostile = 2,
 	Neutral = 4,
 
-	
+	ALL = 7
 }
 
 [Serializable]
