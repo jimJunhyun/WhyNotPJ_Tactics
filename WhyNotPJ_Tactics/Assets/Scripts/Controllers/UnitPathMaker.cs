@@ -189,22 +189,4 @@ public class UnitPathMaker : MonoBehaviour
 			}
 		}
 	}
-
-	float RoundToHalf(float v)
-	{
-		if(v % 0.5f >= 0.25f)
-		{
-			v += 0.5f;
-		}
-		v -= v % 0.5f;
-		return v;
-	}
-
-	Vector3 RoundToHalf(Vector3 v)
-	{
-		v.x = RoundToHalf(v.x);
-		v.y = RoundToHalf(v.y);
-		v.z = RoundToHalf(v.z);
-		return v;
-	}
 }
