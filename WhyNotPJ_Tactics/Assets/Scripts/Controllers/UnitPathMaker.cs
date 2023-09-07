@@ -57,7 +57,7 @@ public class UnitPathMaker : MonoBehaviour
 			{
 				findPath = true;
 				Vector3 hitPoint = ray.GetPoint(enter);
-				curPos = hitPoint;
+				curPos = new Vector3(Mathf.RoundToInt(hitPoint.x * 2f) / 2f, Mathf.RoundToInt(hitPoint.y * 2f) / 2f, hitPoint.z);
 				prevPos = curPos;
 				pathes.Add(curPos);
 			}
@@ -83,11 +83,11 @@ public class UnitPathMaker : MonoBehaviour
 
 	private void Update()
 	{
-		if (Input.GetMouseButtonDown(0)) // ÁÂÅ¬¸¯½Ã ÀÌµ¿ ½ÃÀÛ
+		if (Input.GetMouseButtonDown(0)) // ï¿½ï¿½Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
 		{
 			SetActive(true);
 		}
-		if (Input.GetMouseButtonDown(1)) // ¿ìÅ¬¸¯½Ã ÀÌµ¿ Á¾·á
+		if (Input.GetMouseButtonDown(1)) // ï¿½ï¿½Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
 		{
 			SetActive(false);
 		}
@@ -101,23 +101,25 @@ public class UnitPathMaker : MonoBehaviour
 
 		Vector3 hitPoint = cam.ScreenToWorldPoint(Input.mousePosition); // ray.GetPoint(enter);
 		hitPoint.z = 10;
-		Vector3 nextPos = RoundToHalf(hitPoint);
+		//Vector3 nextPos = (Vector3)Vector3Int.RoundToInt(hitPoint * 2f) / 2f;
+		Vector3 nextPos = new Vector3(Mathf.RoundToInt(hitPoint.x * 2f) / 2f, Mathf.RoundToInt(hitPoint.y * 2f) / 2f, 10);
+		print(nextPos);
 
 		if (nextPos != pathes[0] && Physics2D.CircleCast(nextPos, 0.2f, Vector2.zero, 20f, obstacleLayer))
 		{
-			print("Àå¾Ö¹° ÀÖÀ½");
+			print("ï¿½ï¿½Ö¹ï¿½ ï¿½ï¿½ï¿½ï¿½");
 			moveable = pathes.Count;
 		}
 
 		if (pathes[pathes.Count - 1].x != nextPos.x || pathes[pathes.Count - 1].y != nextPos.y)
 		{
 			Vector3 lastPos = curPos;
-			float move = Mathf.Abs(lastPos.x - nextPos.x) + Mathf.Abs(lastPos.y - nextPos.y);
+			int move = Mathf.RoundToInt(Mathf.Abs(lastPos.x - nextPos.x) + Mathf.Abs(lastPos.y - nextPos.y)) * 2;
 			float x = 0, y = 0, xAdd = nextPos.x < lastPos.x ? -0.5f : 0.5f, yAdd = nextPos.y < lastPos.y ? -0.5f : 0.5f;
 
-			for (int i = 1; i <= move; i++) // ÇÑ ÇÁ·¹ÀÓ¿¡ µÎ Ä­ ÀÌ»óÀ» ÀÌµ¿ÇßÀ» ¶§ ÇÑ ¹ø¿¡ ¿©·¯Ä­À» ¶Ù¾î³Ñ´Â °ÍÀ» ¹æÁöÇÏ´Â ÄÚµå
+			for (int i = 1; i <= move; i++) // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ ï¿½ï¿½ Ä­ ï¿½Ì»ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ä­ï¿½ï¿½ ï¿½Ù¾ï¿½Ñ´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Úµï¿½
 			{
-				// i % 2 ¿¬»êÀ» ÇÏ´Â ÀÌÀ¯´Â ¿òÁ÷ÀÓÀÌ Áö±×Àç±×·Î ¿òÁ÷ÀÌ°Ô ÇÏ±â À§ÇØ¼­ÀÌ´Ù.
+				// i % 2 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì°ï¿½ ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½Ì´ï¿½.
 				if (i % 2 == 1 && (lastPos.x + x) != nextPos.x)
 				{
 					x += xAdd;
