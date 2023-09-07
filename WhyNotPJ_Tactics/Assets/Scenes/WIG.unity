@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 473673710}
   - component: {fileID: 473673713}
   - component: {fileID: 473673714}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: WarCart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -298,7 +298,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 65
+    m_Bits: 1857
   pathes: []
   moveable: -1
 --- !u!4 &1197221249
@@ -328,7 +328,7 @@ GameObject:
   - component: {fileID: 1277317520}
   - component: {fileID: 1277317519}
   - component: {fileID: 1277317518}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: WarCart (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -587,7 +587,7 @@ GameObject:
   - component: {fileID: 1343471186}
   - component: {fileID: 1343471184}
   - component: {fileID: 1343471188}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Immortal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
