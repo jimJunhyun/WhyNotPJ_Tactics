@@ -25,6 +25,8 @@ public class UnitPathMaker : MonoBehaviour
 	[SerializeField]
 	private int moveable = -1;
 
+	private const int MaxPathCount = 64;
+
 	private void Awake()
 	{
 		cam = Camera.main;
@@ -101,13 +103,10 @@ public class UnitPathMaker : MonoBehaviour
 
 		Vector3 hitPoint = cam.ScreenToWorldPoint(Input.mousePosition); // ray.GetPoint(enter);
 		hitPoint.z = 10;
-		//Vector3 nextPos = (Vector3)Vector3Int.RoundToInt(hitPoint * 2f) / 2f;
 		Vector3 nextPos = new Vector3(Mathf.RoundToInt(hitPoint.x * 2f) / 2f, Mathf.RoundToInt(hitPoint.y * 2f) / 2f, 10);
-		print(nextPos);
 
 		if (nextPos != pathes[0] && Physics2D.CircleCast(nextPos, 0.2f, Vector2.zero, 20f, obstacleLayer))
 		{
-			print("��ֹ� ����");
 			moveable = pathes.Count;
 		}
 
@@ -146,10 +145,14 @@ public class UnitPathMaker : MonoBehaviour
 
 	private void NextPath(Vector3 nextPos)
 	{
-		if (pathes.Count > 1 && nextPos.Equals(pathes[pathes.Count - 2]))
+		if (pathes.Count > 1 && nextPos.Equals(prevPos))
 		{
-			prevPos = pathes[pathes.Count - 2];
 			pathes.RemoveAt(pathes.Count - 1);
+
+			if (pathes.Count > 1)
+			{
+				prevPos = pathes[pathes.Count - 2];
+			}
 
 			if (moveable >= pathes.Count)
 			{
@@ -158,7 +161,7 @@ public class UnitPathMaker : MonoBehaviour
 		}
 		else if (!nextPos.Equals(pathes[pathes.Count - 1]))
 		{
-			if (pathes.Count >= 64)
+			if (pathes.Count >= MaxPathCount)
 			{
 				print("Max Path Count!!");
 				return;

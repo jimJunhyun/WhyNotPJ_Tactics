@@ -122,6 +122,7 @@ public class UnitBasic : MonoBehaviour
 	public bool isMoving = false;
 	[SerializeField]
 	public List<Vector3> pathes;
+	private LineRenderer lineRenderer;
 
 	private void Awake()
 	{
@@ -131,6 +132,8 @@ public class UnitBasic : MonoBehaviour
 		{
 			ranges[i].owner = this;
 		}
+
+		lineRenderer = GetComponent<LineRenderer>();
 	}
 
 	private void Start()
@@ -219,6 +222,8 @@ public class UnitBasic : MonoBehaviour
 	public void SetPath(List<Vector3> path)
 	{
 		pathes = new(path);
+		lineRenderer.enabled = true;
+		//lineRenderer.SetPositions(path);
 	}
 
 	private void Move()
@@ -234,6 +239,11 @@ public class UnitBasic : MonoBehaviour
 			if (movable)
 			{
 				Vector3 pos = pathes[0];
+				if (Physics2D.CircleCast(pos, 0.2f, Vector2.zero, 20f))
+				{
+					StopMoving();
+					return;
+				}
 				Vector3 dir = pos - transform.position;
 				float angle = Vector2.SignedAngle(Vector2.up, dir);
 				pathes.RemoveAt(0);
@@ -248,8 +258,15 @@ public class UnitBasic : MonoBehaviour
 		}
 		else if (pathes.Count == 0 && isMoving)
 		{
-			isMoving = false;
+			StopMoving();
 		}
+	}
+
+	public void StopMoving()
+	{
+		pathes.Clear();
+		isMoving = false;
+		lineRenderer.enabled = false;
 	}
 	#endregion
 
