@@ -12,6 +12,14 @@ public enum Side
 	ALL = 7
 }
 
+public enum Direction
+{
+	Up,
+	Down,
+	Left,
+	Right
+}
+
 [Serializable]
 public class AttackRange
 {
@@ -25,7 +33,14 @@ public class AttackRange
 	[HideInInspector]
 	public float totalModMult = 1;
 
-	public int totalAtk { get => (int)((atk + totalMod) * totalModMult); }
+	bool isNullified = false;
+	public bool IsNullified 
+	{ 
+		get => isNullified;
+		set => isNullified = value; 
+	}
+
+	public int totalAtk { get => isNullified ? 0 : (int)((atk + totalMod) * totalModMult); }
 	public List<AnomalyIndex> anomaly;
 	public List<int> anomalyAmount;
 	public void AppendAno(AnomalyIndex info, int amt)
@@ -93,12 +108,6 @@ public class UnitBasic : MonoBehaviour
 		get;
 		set;
 	}
-	bool pSide = true;
-	public bool PSide
-	{
-		get => pSide;
-		set => pSide = value;
-	}
 
 	public bool controlable = false;
 
@@ -106,8 +115,13 @@ public class UnitBasic : MonoBehaviour
 
 	public List<InflictedAnomaly> curStatus = new List<InflictedAnomaly>();
 
+	public Direction curDir;
+
 	bool moved = false;
 
+	int prevLayer;
+
+	delegate bool DelCellChecker(AttackRange rng, out UnitBasic foundUnit);
 
 	[HideInInspector]
 	public bool immunity = false;
@@ -235,6 +249,14 @@ public class UnitBasic : MonoBehaviour
 			{
 				Vector3 pos = pathes[0];
 				Vector3 dir = pos - transform.position;
+				if (dir.x != 0)
+				{
+					curDir = dir.x > 0 ? Direction.Right : Direction.Left;
+				}
+				else if(dir.y != 0)
+				{
+					curDir = dir.y > 0 ? Direction.Up : Direction.Down;
+				}
 				float angle = Vector2.SignedAngle(Vector2.up, dir);
 				pathes.RemoveAt(0);
 
@@ -288,9 +310,10 @@ public class UnitBasic : MonoBehaviour
 
 	bool CheckCell(AttackRange rng, out UnitBasic mover)
 	{
+		StartCoroutine(DelFrame()); //여기서 한번 멈추게 하고싶다.
 		mover = null;
 		Vector3 dest = transform.position + (transform.right * 0.5f * rng.xDistance) + (transform.up * 0.5f * rng.yDistance);
-		Collider2D c = Physics2D.OverlapBox(dest, Vector2.one * 0.4f, 0, rng.TargetSide);
+		Collider2D c = Physics2D.OverlapBox(dest, Vector2.one * 0.3f, 0, rng.TargetSide);
 		if(c)
 		{
 			mover = c.GetComponent<UnitBasic>();
@@ -304,7 +327,7 @@ public class UnitBasic : MonoBehaviour
 		return false;
 	}
 
-	void InflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
+	protected void InflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if (amt <= 0)
 			return;
@@ -338,7 +361,7 @@ public class UnitBasic : MonoBehaviour
 		}
 	}
 
-	bool DisflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
+	protected bool DisflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if (amt <= 0)
 			return false;
@@ -430,6 +453,17 @@ public class UnitBasic : MonoBehaviour
 
 	#region Locals
 
+	public void ChangeSide(int to)
+	{
+		prevLayer = gameObject.layer;
+		gameObject.layer = to;
+	}
+	public void RecallPrevSide()
+	{
+		prevLayer = gameObject.layer;
+		gameObject.layer = prevLayer;
+	}
+
 	public void DestActs()
 	{
 		//Debug.Log("Dest Ref " + name);
@@ -444,11 +478,15 @@ public class UnitBasic : MonoBehaviour
 
 	public void OnDrawGizmos()
 	{
-		for (int i = 0; i < ranges.Count; i++)
+		if(ranges != null)
 		{
-			Vector3 dest = transform.position + (transform.right * 0.5f * ranges[i].xDistance) + (transform.up * 0.5f * ranges[i].yDistance);
-			Gizmos.DrawWireCube(dest, Vector3.one * 0.4f);
+			for (int i = 0; i < ranges.Count; i++)
+			{
+				Vector3 dest = transform.position + (transform.right * 0.5f * ranges[i].xDistance) + (transform.up * 0.5f * ranges[i].yDistance);
+				Gizmos.DrawWireCube(dest, Vector3.one * 0.3f);
+			}
 		}
+		
 	}
 
 	public void Immobilize()
@@ -466,6 +504,11 @@ public class UnitBasic : MonoBehaviour
 		immunity = true;
 		yield return new WaitForSeconds(sec);
 		immunity = false;
+	}
+
+	IEnumerator DelFrame()
+	{
+		yield return null;
 	}
 	#endregion
 }

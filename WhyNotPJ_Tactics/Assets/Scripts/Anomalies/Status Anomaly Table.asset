@@ -53,3 +53,8 @@ MonoBehaviour:
     isBuff: 0
     minActivate: 1
     maxActivate: 4
+  - Id: 9
+    name: "\uBCC0\uC7A5"
+    isBuff: 1
+    minActivate: 1
+    maxActivate: 1

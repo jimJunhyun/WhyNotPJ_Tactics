@@ -46,6 +46,10 @@ public class StatusManager : MonoBehaviour
 		allAnomalies.allAnomalies[7].onActivated += OnLinkActivate;
 		allAnomalies.allAnomalies[7].onUpdated += OnLinkUpdate;
 		allAnomalies.allAnomalies[7].onDisactivated += OnLinkDisactivate;
+
+		allAnomalies.allAnomalies[8].onActivated += OnAmbActivate;
+		allAnomalies.allAnomalies[8].onUpdated += OnAmbUpdate;
+		allAnomalies.allAnomalies[8].onDisactivated += OnAmbDisactivate;
 		//reflection을 사용하기보다 그냥 손수 하나하나 더하기로 결정.
 		//실행속도를 높이기 위함.
 
@@ -192,5 +196,20 @@ public class StatusManager : MonoBehaviour
 	{
 		effector.attackedBy = effector.attackedBy.Except(inflicter.attackedBy).ToList();
 		inflicter.attackedBy = inflicter.attackedBy.Except(effector.attackedBy).ToList();
+	}
+
+	public void OnAmbActivate(UnitBasic effector, UnitBasic inflicter, int amt)
+	{
+		effector.ChangeSide(10);
+	}
+
+	public void OnAmbUpdate(UnitBasic effector, UnitBasic inflicter, int amt)
+	{
+		
+	}
+
+	public void OnAmbDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
+	{
+		effector.RecallPrevSide();
 	}
 }
