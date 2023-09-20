@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 public enum Side
 {
@@ -121,8 +122,6 @@ public class UnitBasic : MonoBehaviour
 
 	int prevLayer;
 
-	delegate bool DelCellChecker(AttackRange rng, out UnitBasic foundUnit);
-
 	[HideInInspector]
 	public bool immunity = false;
 	bool movable = true;
@@ -130,6 +129,8 @@ public class UnitBasic : MonoBehaviour
 	float prevMove;
 
 	public List<AttackRange> ranges;
+	List<KeyValuePair<int, UnitBasic>> foundUnits = new List<KeyValuePair<int, UnitBasic>>();
+	List<KeyValuePair<int, UnitBasic>> prevFound = new List<KeyValuePair<int, UnitBasic>>();
 	Dictionary<AttackRange, UnitBasic> rangeAttackingPair = new Dictionary<AttackRange, UnitBasic>();
 
 
@@ -279,52 +280,29 @@ public class UnitBasic : MonoBehaviour
 
 	private void OnUpdateAct()
 	{
-		
-		for (int i = 0; i < ranges.Count; i++)
-		{
-			Debug.Log(transform.name + " Range No." + i);
-			ranges[i].totalMod = ranges[i].atkModifier + atkModifier;
-			if (CheckCell(ranges[i], out UnitBasic foundUnit))
-			{
-				
-				if (!rangeAttackingPair.ContainsKey(ranges[i]))
-				{
-					Debug.Log(foundUnit.name + " got hit");
-					rangeAttackingPair.Add(ranges[i], foundUnit);
-					foundUnit.Damage(ranges[i]);
-				}
-			}
-			else
-			{
-				if (rangeAttackingPair.ContainsKey(ranges[i]))
-				{
-					rangeAttackingPair[ranges[i]].UnDamage(ranges[i]);
-					rangeAttackingPair.Remove(ranges[i]);
-
-				}
-			}
-
-		}
-		//Debug.Log(myBase.name + " : " + myBase.atkModifier.val);
+		StartCoroutine(DelFrameUpdate());
 	}
 
-	bool CheckCell(AttackRange rng, out UnitBasic mover)
+	void CheckAllCell()
 	{
-		StartCoroutine(DelFrame()); //여기서 한번 멈추게 하고싶다.
-		mover = null;
-		Vector3 dest = transform.position + (transform.right * 0.5f * rng.xDistance) + (transform.up * 0.5f * rng.yDistance);
-		Collider2D c = Physics2D.OverlapBox(dest, Vector2.one * 0.3f, 0, rng.TargetSide);
-		if(c)
-		{
-			mover = c.GetComponent<UnitBasic>();
-			if (mover != null)
-			{
+		prevFound = new List<KeyValuePair<int, UnitBasic>>(foundUnits);
+		foundUnits.Clear();
 
-				return true;
+		UnitBasic mover = null;
+		for (int i = 0; i < ranges.Count; i++)
+		{
+			ranges[i].totalMod = ranges[i].atkModifier + atkModifier;
+			Vector3 dest = transform.position + (transform.right * 0.5f * ranges[i].xDistance) + (transform.up * 0.5f * ranges[i].yDistance);
+			Collider2D c = Physics2D.OverlapBox(dest, Vector2.one * 0.2f, 0, ranges[i].TargetSide);
+			if (c && c.transform != transform)
+			{
+				mover = c.GetComponent<UnitBasic>();
+				if (mover != null)
+				{
+					foundUnits.Add(new KeyValuePair<int, UnitBasic>(i, mover));
+				}
 			}
 		}
-		
-		return false;
 	}
 
 	protected void InflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
@@ -402,6 +380,7 @@ public class UnitBasic : MonoBehaviour
 		for (int i = 0; i < attackedBy.Count; i++)
 		{
 			sum += Mathf.Max((int)(attackedBy[i].totalAtk) - defModifier, 0);
+			Debug.Log(attackedBy[i].totalAtk);
 		}
 		CurHp = hp + hpModifier - sum;
 
@@ -483,10 +462,9 @@ public class UnitBasic : MonoBehaviour
 			for (int i = 0; i < ranges.Count; i++)
 			{
 				Vector3 dest = transform.position + (transform.right * 0.5f * ranges[i].xDistance) + (transform.up * 0.5f * ranges[i].yDistance);
-				Gizmos.DrawWireCube(dest, Vector3.one * 0.3f);
+				Gizmos.DrawWireCube(dest, Vector3.one * 0.2f);
 			}
 		}
-		
 	}
 
 	public void Immobilize()
@@ -506,9 +484,27 @@ public class UnitBasic : MonoBehaviour
 		immunity = false;
 	}
 
-	IEnumerator DelFrame()
+	IEnumerator DelFrameUpdate()
 	{
 		yield return null;
+		yield return null;
+		yield return null;
+		yield return null;
+		CheckAllCell();
+		List<KeyValuePair<int, UnitBasic>> diff = foundUnits.Except(prevFound).ToList(); //새것
+		List<KeyValuePair<int, UnitBasic>> diff2 = prevFound.Except(foundUnits).ToList(); //헌것
+		for (int i = 0; i < diff.Count; i++)
+		{
+			Debug.Log(diff[i].Value.name + " got hit");
+			rangeAttackingPair.Add(ranges[diff[i].Key], diff[i].Value);
+			diff[i].Value.Damage(ranges[diff[i].Key]);
+		}
+		for (int i = 0; i < diff2.Count; i++)
+		{
+			Debug.Log(diff2[i].Value.name + " missed");
+			rangeAttackingPair[ranges[diff2[i].Key]].UnDamage(ranges[diff2[i].Key]);
+			rangeAttackingPair.Remove(ranges[diff2[i].Key]);
+		}
 	}
 	#endregion
 }

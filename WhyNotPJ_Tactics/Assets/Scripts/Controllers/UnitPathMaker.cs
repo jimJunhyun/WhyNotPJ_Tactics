@@ -103,7 +103,7 @@ public class UnitPathMaker : MonoBehaviour
 		hitPoint.z = 10;
 		//Vector3 nextPos = (Vector3)Vector3Int.RoundToInt(hitPoint * 2f) / 2f;
 		Vector3 nextPos = new Vector3(Mathf.RoundToInt(hitPoint.x * 2f) / 2f, Mathf.RoundToInt(hitPoint.y * 2f) / 2f, 10);
-		print(nextPos);
+		//print(nextPos);
 
 		if (nextPos != pathes[0] && Physics2D.CircleCast(nextPos, 0.2f, Vector2.zero, 20f, obstacleLayer))
 		{
