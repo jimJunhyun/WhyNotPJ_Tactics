@@ -222,8 +222,7 @@ public class UnitBasic : MonoBehaviour
 	public void SetPath(List<Vector3> path)
 	{
 		pathes = new(path);
-		lineRenderer.enabled = true;
-		//lineRenderer.SetPositions(path);
+		SetLineRendererSegments(pathes);
 	}
 
 	private void Move()
@@ -250,6 +249,7 @@ public class UnitBasic : MonoBehaviour
 
 				transform.position = pos;
 				transform.rotation = Quaternion.Euler(0, 0, angle);
+				SetLineRendererSegments(pathes);
 
 				movable = false;
 				prevMove = Time.time;
@@ -266,7 +266,21 @@ public class UnitBasic : MonoBehaviour
 	{
 		pathes.Clear();
 		isMoving = false;
-		lineRenderer.enabled = false;
+		if (lineRenderer)
+			lineRenderer.enabled = false;
+	}
+
+	private void SetLineRendererSegments(List<Vector3> positions)
+	{
+		if (lineRenderer == null) return;
+
+		lineRenderer.enabled = true;
+		lineRenderer.positionCount = positions.Count + 1;
+		lineRenderer.SetPosition(0, transform.position);
+		for (int i = 0; i < lineRenderer.positionCount - 1; ++i)
+		{
+			lineRenderer.SetPosition(i + 1, positions[i]);
+		}
 	}
 	#endregion
 
