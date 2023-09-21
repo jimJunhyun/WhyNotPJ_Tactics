@@ -72,7 +72,7 @@ public class StatusManager : MonoBehaviour
 
 	public void OnEmpowerActivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
-		effector.atkModifier =effector.curStatus.Find(x=>x.info.Id == ((int)AnomalyIndex.Empower) + 1).stacks;
+		effector.atkModifier += effector.curStatus.Find(x=>x.info.Id == ((int)AnomalyIndex.Empower) + 1).stacks;
 	}
 
 	public void OnEmpowerUpdate(UnitBasic effector, UnitBasic inflicter, int amt)

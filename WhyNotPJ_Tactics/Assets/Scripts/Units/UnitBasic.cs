@@ -84,8 +84,8 @@ public class AttackRange
 
 public class UnitBasic : MonoBehaviour
 {
-
-	public float moveGap;
+	[SerializeField]
+	protected float moveGap;
 	public float moveDist = 1;
 
 	[SerializeField]
@@ -127,12 +127,12 @@ public class UnitBasic : MonoBehaviour
 	bool movable = true;
 
 	float prevMove;
+	float prevGap;
 
 	public List<AttackRange> ranges;
-	List<KeyValuePair<int, UnitBasic>> foundUnits = new List<KeyValuePair<int, UnitBasic>>();
-	List<KeyValuePair<int, UnitBasic>> prevFound = new List<KeyValuePair<int, UnitBasic>>();
-	Dictionary<AttackRange, UnitBasic> rangeAttackingPair = new Dictionary<AttackRange, UnitBasic>();
-
+	protected List<KeyValuePair<int, UnitBasic>> foundUnits = new List<KeyValuePair<int, UnitBasic>>();
+	protected List<KeyValuePair<int, UnitBasic>> prevFound = new List<KeyValuePair<int, UnitBasic>>();
+	protected Dictionary<AttackRange, UnitBasic> rangeAttackingPair = new Dictionary<AttackRange, UnitBasic>();
 
 	public bool isMoving = false;
 	[SerializeField]
@@ -146,6 +146,7 @@ public class UnitBasic : MonoBehaviour
 		{
 			ranges[i].owner = this;
 		}
+		prevGap = moveGap;
 	}
 
 	private void Start()
@@ -157,71 +158,6 @@ public class UnitBasic : MonoBehaviour
 	void Update()
 	{
 		Move();
-
-		//if (controlable) //Temp
-		//{
-		//	if (Time.time - prevMove >= moveGap)
-		//	{
-		//		movable = true;
-		//	}
-		//	if (movable)
-		//	{
-		//		RaycastHit2D hit;
-				
-		//		if (Input.GetAxisRaw("Horizontal") > 0)
-		//		{
-		//			if (!Physics2D.Raycast(transform.position + Vector3.right * (transform.localScale.x / 1.8f), Vector3.right, rayDist))
-		//			{
-		//				moved = true;
-		//				transform.eulerAngles = new Vector3(0, 0, 270);
-
-		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
-		//				movable = false;
-		//				prevMove = Time.time;
-		//			}
-
-		//		}
-		//		else if (Input.GetAxisRaw("Horizontal") < 0)
-		//		{
-		//			if (!(hit = Physics2D.Raycast(transform.position - Vector3.right * (transform.localScale.x / 1.8f), Vector3.left, rayDist)))
-		//			{
-
-		//				moved = true;
-		//				transform.eulerAngles = new Vector3(0, 0, 90);
-
-		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
-		//				movable = false;
-		//				prevMove = Time.time;
-		//			}
-		//		}
-		//		else if (Input.GetAxisRaw("Vertical") > 0)
-		//		{
-		//			if (!(hit = Physics2D.Raycast(transform.position + Vector3.up * (transform.localScale.y / 1.8f), Vector3.up, rayDist)))
-		//			{
-		//				moved = true;
-		//				transform.eulerAngles = new Vector3(0, 0, 0);
-		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
-		//				movable = false;
-		//				prevMove = Time.time;
-		//			}
-		//		}
-		//		else if (Input.GetAxisRaw("Vertical") < 0)
-		//		{
-
-		//			if (!(hit = Physics2D.Raycast(transform.position - Vector3.up * (transform.localScale.y / 1.8f), Vector3.down, rayDist)))
-		//			{
-
-		//				moved = true;
-		//				transform.eulerAngles = new Vector3(0, 0, 180);
-		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
-		//				movable = false;
-		//				prevMove = Time.time;
-		//			}
-		//		}
-
-				
-		//	}
-		//}
 		if (moved)
 		{
 			moved = false;
@@ -234,6 +170,18 @@ public class UnitBasic : MonoBehaviour
 	public void SetPath(List<Vector3> path)
 	{
 		pathes = new(path);
+	}
+
+	public void ChangeSpeed(float to)
+	{
+		moveGap = to;
+		Debug.Log("FASTER");
+	}
+	
+	public void ResetSpeed()
+	{
+		moveGap = prevGap;
+		Debug.Log("RESET");
 	}
 
 	private void Move()
@@ -283,7 +231,7 @@ public class UnitBasic : MonoBehaviour
 		StartCoroutine(DelFrameUpdate());
 	}
 
-	void CheckAllCell()
+	protected virtual void CheckAllCell()
 	{
 		prevFound = new List<KeyValuePair<int, UnitBasic>>(foundUnits);
 		foundUnits.Clear();
@@ -305,7 +253,29 @@ public class UnitBasic : MonoBehaviour
 		}
 	}
 
-	protected void InflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
+	protected virtual void InfDisfDamage()
+	{
+		List<KeyValuePair<int, UnitBasic>> diff = foundUnits.Except(prevFound).ToList(); //货巴
+		List<KeyValuePair<int, UnitBasic>> diff2 = prevFound.Except(foundUnits).ToList(); //清巴
+		for (int i = 0; i < diff.Count; i++)
+		{
+			Debug.Log(diff[i].Value.name + " got hit");
+			rangeAttackingPair.Add(ranges[diff[i].Key], diff[i].Value);
+			diff[i].Value.Damage(ranges[diff[i].Key]);
+		}
+		for (int i = 0; i < diff2.Count; i++)
+		{
+			if (diff2 != null)
+			{
+				rangeAttackingPair[ranges[diff2[i].Key]].UnDamage(ranges[diff2[i].Key]);
+				rangeAttackingPair.Remove(ranges[diff2[i].Key]);
+			}
+			//Debug.Log(diff2[i].Value.name + " missed");
+
+		}
+	}
+
+	protected virtual void InflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if (amt <= 0)
 			return;
@@ -339,7 +309,7 @@ public class UnitBasic : MonoBehaviour
 		}
 	}
 
-	protected bool DisflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
+	protected virtual bool DisflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if (amt <= 0)
 			return false;
@@ -383,7 +353,7 @@ public class UnitBasic : MonoBehaviour
 			Debug.Log(attackedBy[i].totalAtk);
 		}
 		CurHp = hp + hpModifier - sum;
-
+		Debug.Log($"HP : {hp} + {hpModifier} - {sum} = {CurHp}");
 	}
 
 	public virtual void UnDamage(AttackRange rng)
@@ -402,6 +372,7 @@ public class UnitBasic : MonoBehaviour
 			sum += Mathf.Max((int)(attackedBy[i].totalAtk) - defModifier, 0);
 		}
 		CurHp = hp + hpModifier - sum;
+		Debug.Log($"{name} HP : {hp} + {hpModifier} - {sum} = {CurHp}");
 	}
 
 	public virtual void OnDead()
@@ -491,20 +462,7 @@ public class UnitBasic : MonoBehaviour
 		yield return null;
 		yield return null;
 		CheckAllCell();
-		List<KeyValuePair<int, UnitBasic>> diff = foundUnits.Except(prevFound).ToList(); //货巴
-		List<KeyValuePair<int, UnitBasic>> diff2 = prevFound.Except(foundUnits).ToList(); //清巴
-		for (int i = 0; i < diff.Count; i++)
-		{
-			Debug.Log(diff[i].Value.name + " got hit");
-			rangeAttackingPair.Add(ranges[diff[i].Key], diff[i].Value);
-			diff[i].Value.Damage(ranges[diff[i].Key]);
-		}
-		for (int i = 0; i < diff2.Count; i++)
-		{
-			Debug.Log(diff2[i].Value.name + " missed");
-			rangeAttackingPair[ranges[diff2[i].Key]].UnDamage(ranges[diff2[i].Key]);
-			rangeAttackingPair.Remove(ranges[diff2[i].Key]);
-		}
+		InfDisfDamage();
 	}
 	#endregion
 }
