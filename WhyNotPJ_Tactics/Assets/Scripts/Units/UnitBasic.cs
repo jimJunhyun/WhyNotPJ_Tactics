@@ -120,7 +120,7 @@ public class UnitBasic : MonoBehaviour
 
 	bool moved = false;
 
-	int prevLayer;
+	Stack<int> layerHistory = new Stack<int>();
 
 	[HideInInspector]
 	public bool immunity = false;
@@ -255,23 +255,20 @@ public class UnitBasic : MonoBehaviour
 
 	protected virtual void InfDisfDamage()
 	{
-		List<KeyValuePair<int, UnitBasic>> diff = foundUnits.Except(prevFound).ToList(); //새것
-		List<KeyValuePair<int, UnitBasic>> diff2 = prevFound.Except(foundUnits).ToList(); //헌것
+		List<KeyValuePair<int, UnitBasic>> diff = foundUnits.Except(prevFound).ToList();
+		List<KeyValuePair<int, UnitBasic>> diff2 = prevFound.Except(foundUnits).ToList();
+		for (int i = 0; i < diff2.Count; i++)
+		{
+			Debug.Log(diff2[i].Value.name + " MISSED");
+			rangeAttackingPair[ranges[diff2[i].Key]].UnDamage(ranges[diff2[i].Key]);
+			rangeAttackingPair.Remove(ranges[diff2[i].Key]);
+		}
+
 		for (int i = 0; i < diff.Count; i++)
 		{
 			Debug.Log(diff[i].Value.name + " got hit");
 			rangeAttackingPair.Add(ranges[diff[i].Key], diff[i].Value);
 			diff[i].Value.Damage(ranges[diff[i].Key]);
-		}
-		for (int i = 0; i < diff2.Count; i++)
-		{
-			if (diff2 != null)
-			{
-				rangeAttackingPair[ranges[diff2[i].Key]].UnDamage(ranges[diff2[i].Key]);
-				rangeAttackingPair.Remove(ranges[diff2[i].Key]);
-			}
-			//Debug.Log(diff2[i].Value.name + " missed");
-
 		}
 	}
 
@@ -323,6 +320,7 @@ public class UnitBasic : MonoBehaviour
 				found.info.onUpdated?.Invoke(this, inflicter, -amt);
 				if (prevActivate && found.stacks < StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate)
 				{
+					Debug.Log("이상 해제");
 					found.info.onDisactivated?.Invoke(this, inflicter, amt);
 				}
 				if (found.stacks <= 0)
@@ -350,7 +348,6 @@ public class UnitBasic : MonoBehaviour
 		for (int i = 0; i < attackedBy.Count; i++)
 		{
 			sum += Mathf.Max((int)(attackedBy[i].totalAtk) - defModifier, 0);
-			Debug.Log(attackedBy[i].totalAtk);
 		}
 		CurHp = hp + hpModifier - sum;
 		Debug.Log($"HP : {hp} + {hpModifier} - {sum} = {CurHp}");
@@ -363,6 +360,7 @@ public class UnitBasic : MonoBehaviour
 
 		for (int i = 0; i < rng.anomaly.Count; i++)
 		{
+			Debug.Log("데미지취소됨");
 			DisflictDistort(rng.owner, rng.anomaly[i], rng.anomalyAmount[i]);
 		}
 
@@ -405,13 +403,17 @@ public class UnitBasic : MonoBehaviour
 
 	public void ChangeSide(int to)
 	{
-		prevLayer = gameObject.layer;
+		Debug.Log($"++CHANGED TO {to}");
+		layerHistory.Push(gameObject.layer);
 		gameObject.layer = to;
 	}
 	public void RecallPrevSide()
 	{
-		prevLayer = gameObject.layer;
-		gameObject.layer = prevLayer;
+		if(layerHistory.Count > 0)
+		{
+			Debug.Log($"++ROLLBACK TO {layerHistory.Peek()}");
+			gameObject.layer = layerHistory.Pop();
+		}
 	}
 
 	public void DestActs()

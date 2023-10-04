@@ -210,6 +210,7 @@ public class StatusManager : MonoBehaviour
 
 	public void OnAmbDisactivate(UnitBasic effector, UnitBasic inflicter, int amt)
 	{
+		Debug.Log($"{effector.name} <-- {inflicter.name} ? {amt}");
 		effector.RecallPrevSide();
 	}
 }

@@ -141,7 +141,7 @@ MonoBehaviour:
     totalModMult: 0
     anomaly: 08000000
     anomalyAmount: 01000000
-    targetSide: 3
+    targetSide: 7
     owner: {fileID: 0}
   - xDistance: 1
     yDistance: 1
@@ -151,7 +151,7 @@ MonoBehaviour:
     totalModMult: 0
     anomaly: 08000000
     anomalyAmount: 01000000
-    targetSide: 3
+    targetSide: 7
     owner: {fileID: 0}
   - xDistance: 1
     yDistance: 0
@@ -161,7 +161,7 @@ MonoBehaviour:
     totalModMult: 0
     anomaly: 08000000
     anomalyAmount: 01000000
-    targetSide: 3
+    targetSide: 7
     owner: {fileID: 0}
   - xDistance: 1
     yDistance: -1
@@ -171,7 +171,7 @@ MonoBehaviour:
     totalModMult: 0
     anomaly: 08000000
     anomalyAmount: 01000000
-    targetSide: 3
+    targetSide: 7
     owner: {fileID: 0}
   - xDistance: 0
     yDistance: -1
@@ -181,7 +181,7 @@ MonoBehaviour:
     totalModMult: 0
     anomaly: 08000000
     anomalyAmount: 01000000
-    targetSide: 3
+    targetSide: 7
     owner: {fileID: 0}
   - xDistance: -1
     yDistance: -1
@@ -191,7 +191,7 @@ MonoBehaviour:
     totalModMult: 0
     anomaly: 08000000
     anomalyAmount: 01000000
-    targetSide: 3
+    targetSide: 7
     owner: {fileID: 0}
   - xDistance: -1
     yDistance: 0
@@ -201,7 +201,7 @@ MonoBehaviour:
     totalModMult: 0
     anomaly: 08000000
     anomalyAmount: 01000000
-    targetSide: 3
+    targetSide: 7
     owner: {fileID: 0}
   - xDistance: -1
     yDistance: 1
@@ -211,7 +211,7 @@ MonoBehaviour:
     totalModMult: 0
     anomaly: 08000000
     anomalyAmount: 01000000
-    targetSide: 3
+    targetSide: 7
     owner: {fileID: 0}
   isMoving: 0
   pathes: []

@@ -130,6 +130,7 @@ MonoBehaviour:
   hp: 4
   controlable: 1
   attackedBy: []
+  curDir: 0
   immunity: 0
   ranges:
   - xDistance: 1
