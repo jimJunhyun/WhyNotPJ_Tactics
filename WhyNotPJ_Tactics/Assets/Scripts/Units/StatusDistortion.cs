@@ -15,6 +15,7 @@ public enum AnomalyIndex
     InfSource,
     Infect,
     SoulLink,
+    Ambush,
 
     Max
 }

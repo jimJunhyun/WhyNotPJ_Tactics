@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 public enum Side
 {
@@ -10,6 +11,14 @@ public enum Side
 	Neutral = 4,
 
 	ALL = 7
+}
+
+public enum Direction
+{
+	Up,
+	Down,
+	Left,
+	Right
 }
 
 [Serializable]
@@ -25,7 +34,14 @@ public class AttackRange
 	[HideInInspector]
 	public float totalModMult = 1;
 
-	public int totalAtk { get => (int)((atk + totalMod) * totalModMult); }
+	bool isNullified = false;
+	public bool IsNullified 
+	{ 
+		get => isNullified;
+		set => isNullified = value; 
+	}
+
+	public int totalAtk { get => isNullified ? 0 : (int)((atk + totalMod) * totalModMult); }
 	public List<AnomalyIndex> anomaly;
 	public List<int> anomalyAmount;
 	public void AppendAno(AnomalyIndex info, int amt)
@@ -68,8 +84,8 @@ public class AttackRange
 
 public class UnitBasic : MonoBehaviour
 {
-
-	public float moveGap;
+	[SerializeField]
+	protected float moveGap;
 	public float moveDist = 1;
 
 	[SerializeField]
@@ -93,12 +109,6 @@ public class UnitBasic : MonoBehaviour
 		get;
 		set;
 	}
-	bool pSide = true;
-	public bool PSide
-	{
-		get => pSide;
-		set => pSide = value;
-	}
 
 	public bool controlable = false;
 
@@ -106,18 +116,23 @@ public class UnitBasic : MonoBehaviour
 
 	public List<InflictedAnomaly> curStatus = new List<InflictedAnomaly>();
 
+	public Direction curDir;
+
 	bool moved = false;
 
+	Stack<int> layerHistory = new Stack<int>();
 
 	[HideInInspector]
 	public bool immunity = false;
 	bool movable = true;
 
 	float prevMove;
+	float prevGap;
 
 	public List<AttackRange> ranges;
-	Dictionary<AttackRange, UnitBasic> rangeAttackingPair = new Dictionary<AttackRange, UnitBasic>();
-
+	protected List<KeyValuePair<int, UnitBasic>> foundUnits = new List<KeyValuePair<int, UnitBasic>>();
+	protected List<KeyValuePair<int, UnitBasic>> prevFound = new List<KeyValuePair<int, UnitBasic>>();
+	protected Dictionary<AttackRange, UnitBasic> rangeAttackingPair = new Dictionary<AttackRange, UnitBasic>();
 
 	public bool isMoving = false;
 	[SerializeField]
@@ -131,6 +146,7 @@ public class UnitBasic : MonoBehaviour
 		{
 			ranges[i].owner = this;
 		}
+		prevGap = moveGap;
 	}
 
 	private void Start()
@@ -142,71 +158,6 @@ public class UnitBasic : MonoBehaviour
 	void Update()
 	{
 		Move();
-
-		//if (controlable) //Temp
-		//{
-		//	if (Time.time - prevMove >= moveGap)
-		//	{
-		//		movable = true;
-		//	}
-		//	if (movable)
-		//	{
-		//		RaycastHit2D hit;
-				
-		//		if (Input.GetAxisRaw("Horizontal") > 0)
-		//		{
-		//			if (!Physics2D.Raycast(transform.position + Vector3.right * (transform.localScale.x / 1.8f), Vector3.right, rayDist))
-		//			{
-		//				moved = true;
-		//				transform.eulerAngles = new Vector3(0, 0, 270);
-
-		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
-		//				movable = false;
-		//				prevMove = Time.time;
-		//			}
-
-		//		}
-		//		else if (Input.GetAxisRaw("Horizontal") < 0)
-		//		{
-		//			if (!(hit = Physics2D.Raycast(transform.position - Vector3.right * (transform.localScale.x / 1.8f), Vector3.left, rayDist)))
-		//			{
-
-		//				moved = true;
-		//				transform.eulerAngles = new Vector3(0, 0, 90);
-
-		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
-		//				movable = false;
-		//				prevMove = Time.time;
-		//			}
-		//		}
-		//		else if (Input.GetAxisRaw("Vertical") > 0)
-		//		{
-		//			if (!(hit = Physics2D.Raycast(transform.position + Vector3.up * (transform.localScale.y / 1.8f), Vector3.up, rayDist)))
-		//			{
-		//				moved = true;
-		//				transform.eulerAngles = new Vector3(0, 0, 0);
-		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
-		//				movable = false;
-		//				prevMove = Time.time;
-		//			}
-		//		}
-		//		else if (Input.GetAxisRaw("Vertical") < 0)
-		//		{
-
-		//			if (!(hit = Physics2D.Raycast(transform.position - Vector3.up * (transform.localScale.y / 1.8f), Vector3.down, rayDist)))
-		//			{
-
-		//				moved = true;
-		//				transform.eulerAngles = new Vector3(0, 0, 180);
-		//				transform.Translate(new Vector3(0, moveDist), Space.Self);
-		//				movable = false;
-		//				prevMove = Time.time;
-		//			}
-		//		}
-
-				
-		//	}
-		//}
 		if (moved)
 		{
 			moved = false;
@@ -219,6 +170,18 @@ public class UnitBasic : MonoBehaviour
 	public void SetPath(List<Vector3> path)
 	{
 		pathes = new(path);
+	}
+
+	public void ChangeSpeed(float to)
+	{
+		moveGap = to;
+		Debug.Log("FASTER");
+	}
+	
+	public void ResetSpeed()
+	{
+		moveGap = prevGap;
+		Debug.Log("RESET");
 	}
 
 	private void Move()
@@ -235,6 +198,14 @@ public class UnitBasic : MonoBehaviour
 			{
 				Vector3 pos = pathes[0];
 				Vector3 dir = pos - transform.position;
+				if (dir.x != 0)
+				{
+					curDir = dir.x > 0 ? Direction.Right : Direction.Left;
+				}
+				else if(dir.y != 0)
+				{
+					curDir = dir.y > 0 ? Direction.Up : Direction.Down;
+				}
 				float angle = Vector2.SignedAngle(Vector2.up, dir);
 				pathes.RemoveAt(0);
 
@@ -257,54 +228,51 @@ public class UnitBasic : MonoBehaviour
 
 	private void OnUpdateAct()
 	{
-		
+		StartCoroutine(DelFrameUpdate());
+	}
+
+	protected virtual void CheckAllCell()
+	{
+		prevFound = new List<KeyValuePair<int, UnitBasic>>(foundUnits);
+		foundUnits.Clear();
+
+		UnitBasic mover = null;
 		for (int i = 0; i < ranges.Count; i++)
 		{
-			Debug.Log(transform.name + " Range No." + i);
 			ranges[i].totalMod = ranges[i].atkModifier + atkModifier;
-			if (CheckCell(ranges[i], out UnitBasic foundUnit))
+			Vector3 dest = transform.position + (transform.right * 0.5f * ranges[i].xDistance) + (transform.up * 0.5f * ranges[i].yDistance);
+			Collider2D c = Physics2D.OverlapBox(dest, Vector2.one * 0.2f, 0, ranges[i].TargetSide);
+			if (c && c.transform != transform)
 			{
-				
-				if (!rangeAttackingPair.ContainsKey(ranges[i]))
+				mover = c.GetComponent<UnitBasic>();
+				if (mover != null)
 				{
-					Debug.Log(foundUnit.name + " got hit");
-					rangeAttackingPair.Add(ranges[i], foundUnit);
-					foundUnit.Damage(ranges[i]);
+					foundUnits.Add(new KeyValuePair<int, UnitBasic>(i, mover));
 				}
 			}
-			else
-			{
-				if (rangeAttackingPair.ContainsKey(ranges[i]))
-				{
-					rangeAttackingPair[ranges[i]].UnDamage(ranges[i]);
-					rangeAttackingPair.Remove(ranges[i]);
-
-				}
-			}
-
 		}
-		//Debug.Log(myBase.name + " : " + myBase.atkModifier.val);
 	}
 
-	bool CheckCell(AttackRange rng, out UnitBasic mover)
+	protected virtual void InfDisfDamage()
 	{
-		mover = null;
-		Vector3 dest = transform.position + (transform.right * 0.5f * rng.xDistance) + (transform.up * 0.5f * rng.yDistance);
-		Collider2D c = Physics2D.OverlapBox(dest, Vector2.one * 0.4f, 0, rng.TargetSide);
-		if(c)
+		List<KeyValuePair<int, UnitBasic>> diff = foundUnits.Except(prevFound).ToList();
+		List<KeyValuePair<int, UnitBasic>> diff2 = prevFound.Except(foundUnits).ToList();
+		for (int i = 0; i < diff2.Count; i++)
 		{
-			mover = c.GetComponent<UnitBasic>();
-			if (mover != null)
-			{
-
-				return true;
-			}
+			Debug.Log(diff2[i].Value.name + " MISSED");
+			rangeAttackingPair[ranges[diff2[i].Key]].UnDamage(ranges[diff2[i].Key]);
+			rangeAttackingPair.Remove(ranges[diff2[i].Key]);
 		}
-		
-		return false;
+
+		for (int i = 0; i < diff.Count; i++)
+		{
+			Debug.Log(diff[i].Value.name + " got hit");
+			rangeAttackingPair.Add(ranges[diff[i].Key], diff[i].Value);
+			diff[i].Value.Damage(ranges[diff[i].Key]);
+		}
 	}
 
-	void InflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
+	protected virtual void InflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if (amt <= 0)
 			return;
@@ -338,7 +306,7 @@ public class UnitBasic : MonoBehaviour
 		}
 	}
 
-	bool DisflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
+	protected virtual bool DisflictDistort(UnitBasic inflicter, AnomalyIndex anomaly, int amt = 1)
 	{
 		if (amt <= 0)
 			return false;
@@ -352,6 +320,7 @@ public class UnitBasic : MonoBehaviour
 				found.info.onUpdated?.Invoke(this, inflicter, -amt);
 				if (prevActivate && found.stacks < StatusManager.instance.allAnomalies.allAnomalies[((int)anomaly)].minActivate)
 				{
+					Debug.Log("이상 해제");
 					found.info.onDisactivated?.Invoke(this, inflicter, amt);
 				}
 				if (found.stacks <= 0)
@@ -381,7 +350,7 @@ public class UnitBasic : MonoBehaviour
 			sum += Mathf.Max((int)(attackedBy[i].totalAtk) - defModifier, 0);
 		}
 		CurHp = hp + hpModifier - sum;
-
+		Debug.Log($"HP : {hp} + {hpModifier} - {sum} = {CurHp}");
 	}
 
 	public virtual void UnDamage(AttackRange rng)
@@ -391,6 +360,7 @@ public class UnitBasic : MonoBehaviour
 
 		for (int i = 0; i < rng.anomaly.Count; i++)
 		{
+			Debug.Log("데미지취소됨");
 			DisflictDistort(rng.owner, rng.anomaly[i], rng.anomalyAmount[i]);
 		}
 
@@ -400,6 +370,7 @@ public class UnitBasic : MonoBehaviour
 			sum += Mathf.Max((int)(attackedBy[i].totalAtk) - defModifier, 0);
 		}
 		CurHp = hp + hpModifier - sum;
+		Debug.Log($"{name} HP : {hp} + {hpModifier} - {sum} = {CurHp}");
 	}
 
 	public virtual void OnDead()
@@ -430,6 +401,21 @@ public class UnitBasic : MonoBehaviour
 
 	#region Locals
 
+	public void ChangeSide(int to)
+	{
+		Debug.Log($"++CHANGED TO {to}");
+		layerHistory.Push(gameObject.layer);
+		gameObject.layer = to;
+	}
+	public void RecallPrevSide()
+	{
+		if(layerHistory.Count > 0)
+		{
+			Debug.Log($"++ROLLBACK TO {layerHistory.Peek()}");
+			gameObject.layer = layerHistory.Pop();
+		}
+	}
+
 	public void DestActs()
 	{
 		//Debug.Log("Dest Ref " + name);
@@ -444,10 +430,13 @@ public class UnitBasic : MonoBehaviour
 
 	public void OnDrawGizmos()
 	{
-		for (int i = 0; i < ranges.Count; i++)
+		if(ranges != null)
 		{
-			Vector3 dest = transform.position + (transform.right * 0.5f * ranges[i].xDistance) + (transform.up * 0.5f * ranges[i].yDistance);
-			Gizmos.DrawWireCube(dest, Vector3.one * 0.4f);
+			for (int i = 0; i < ranges.Count; i++)
+			{
+				Vector3 dest = transform.position + (transform.right * 0.5f * ranges[i].xDistance) + (transform.up * 0.5f * ranges[i].yDistance);
+				Gizmos.DrawWireCube(dest, Vector3.one * 0.2f);
+			}
 		}
 	}
 
@@ -466,6 +455,16 @@ public class UnitBasic : MonoBehaviour
 		immunity = true;
 		yield return new WaitForSeconds(sec);
 		immunity = false;
+	}
+
+	IEnumerator DelFrameUpdate()
+	{
+		yield return null;
+		yield return null;
+		yield return null;
+		yield return null;
+		CheckAllCell();
+		InfDisfDamage();
 	}
 	#endregion
 }

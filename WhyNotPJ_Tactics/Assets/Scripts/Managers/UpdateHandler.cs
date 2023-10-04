@@ -42,6 +42,7 @@ public class UpdateHandler : MonoBehaviour
     {
 		for (int i = 0; i < allUnits.Count; i++)
 		{
+			//Debug.Log(allUnits[i].name + " : " + allUnits[i].CurHp);
 			if (allUnits[i].CurHp <= 0)
 			{
 				StartCoroutine(DelayDie(0, allUnits[i].OnDead));
@@ -55,6 +56,7 @@ public class UpdateHandler : MonoBehaviour
 		{
 			if (c == null)
 			{
+				Debug.Log("START DEST");
 				c = StartCoroutine(DelayDie(4, InvokeDests));
 			}
 		}
@@ -67,6 +69,7 @@ public class UpdateHandler : MonoBehaviour
 	IEnumerator DelInvoker()
 	{
 		yield return null;
+		Debug.Log("UPD");
 		fieldUpdateAct?.Invoke();
 		requestCalls = 0;
 	}
@@ -95,7 +98,8 @@ public class UpdateHandler : MonoBehaviour
 			if (destTargets[i] != null)
 			{
 				allUnits.Remove(destTargets[i]);
-				//Destroy(destTargets[i].gameObject);
+				destTargets[i].gameObject.SetActive(false);
+				StopAllCoroutines();
 			}
 
 		}
