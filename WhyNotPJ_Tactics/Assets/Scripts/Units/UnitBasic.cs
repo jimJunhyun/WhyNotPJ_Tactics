@@ -432,6 +432,7 @@ public class UnitBasic : MonoBehaviour
 	{
 		if(ranges != null)
 		{
+			Gizmos.color = Color.magenta;
 			for (int i = 0; i < ranges.Count; i++)
 			{
 				Vector3 dest = transform.position + (transform.right * 0.5f * ranges[i].xDistance) + (transform.up * 0.5f * ranges[i].yDistance);
