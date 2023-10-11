@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class UnitPathMaker : MonoBehaviour
 {
@@ -87,7 +88,10 @@ public class UnitPathMaker : MonoBehaviour
 	{
 		if (Input.GetMouseButtonDown(0)) // ��Ŭ���� �̵� ����
 		{
-			SetActive(true);
+			if (!EventSystem.current.IsPointerOverGameObject())
+			{
+				SetActive(true);
+			}
 		}
 		if (Input.GetMouseButtonDown(1)) // ��Ŭ���� �̵� ����
 		{
