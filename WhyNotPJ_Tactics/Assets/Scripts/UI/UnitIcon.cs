@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class UnitIcon : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
@@ -31,9 +32,12 @@ public class UnitIcon : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
 		pos.x = Mathf.RoundToInt(pos.x * 2f) / 2f;
 		pos.y = Mathf.RoundToInt(pos.y * 2f) / 2f;
 		pos.z = 10;
-		print(pos);
-		Instantiate(unit, pos, Quaternion.identity);
 		transform.position = basePos.position;
 		dragging = false;
+
+		if (!Physics2D.CircleCast(pos, 0.2f, Vector2.zero, 20f))
+		{
+			Instantiate(unit, pos, Quaternion.identity);
+		}
 	}
 }

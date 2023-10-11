@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3846950444963683612}
   - component: {fileID: 3846950444963683613}
   m_Layer: 8
-  m_Name: WarCart
+  m_Name: TestWarCart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
