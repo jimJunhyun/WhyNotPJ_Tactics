@@ -20,6 +20,7 @@ public class UnitCreator : MonoBehaviour, IPointerDownHandler
 			{
 				Instantiate(db.units[curHoldingNo].unitInfo, ClampVectorHalfScale(mPos), Quaternion.identity);
 				curHoldingNo = -1;
+				ShowUnitInfo.instance.Off();
 			}
 		}
 	}
@@ -29,10 +30,14 @@ public class UnitCreator : MonoBehaviour, IPointerDownHandler
 		if(curHoldingNo == num)
 		{
 			curHoldingNo = -1;
+			ShowUnitInfo.instance.Off();
+			Debug.Log("!!!");
 		}
 		else
 		{
 			curHoldingNo = num;
+			ShowUnitInfo.instance.On(num);
+			Debug.Log("???");
 		}
 	}
 

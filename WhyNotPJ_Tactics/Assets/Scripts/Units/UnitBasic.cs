@@ -85,8 +85,10 @@ public class AttackRange
 public class UnitBasic : MonoBehaviour
 {
 	[SerializeField]
-	protected float moveGap;
+	public float moveGap;
 	public float moveDist = 1;
+
+	public float cost;
 
 	[SerializeField]
 	float rayDist = 0.5f;

@@ -12,7 +12,8 @@ public class UnitSelectionButtons : MonoBehaviour
 		creator = GameObject.Find("MiddlePanel").GetComponent<UnitCreator>();
 		for (int i = 0; i < db.units.Count; i++)
 		{
-			GameObject g = Instantiate(new GameObject(), transform);
+			GameObject g = new GameObject();
+			g.transform.SetParent(transform);
 			Image img = g.AddComponent<Image>();
 			img.sprite = db.units[i].icon;
 			img.color = Color.black;
